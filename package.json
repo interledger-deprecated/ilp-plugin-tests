@@ -1,0 +1,22 @@
+{
+  "name": "ilp-plugin-test",
+  "version": "1.0.0",
+  "description": "Test suite for ledger plugins",
+  "main": "index.js",
+  "scripts": {
+    "test": "istanbul test -- _mocha"
+  },
+  "keywords": [
+    "test",
+    "plugin",
+    "interledger",
+    "ledger"
+  ],
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "istanbul": "^0.4.3",
+    "mocha": "^2.5.3"
+  },
+  "author": "",
+  "license": "ISC"
+}
