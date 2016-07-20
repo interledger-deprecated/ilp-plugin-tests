@@ -27,12 +27,31 @@ describe('Plugin transfers', function () {
   })
 
   describe('send', function () {
-    it('should send an optimistic transfer with 0 balance', function () {
+    it('should send an optimistic transfer with 0 amount', function (done) {
       pluginA.send({
         id: 'uuid-or-something',
         account: optsB.account, // TODO: change this so account doesn't have
                                 // to be a field
         amount: '0.0',
+        data: null,
+        noteToSelf: null,
+        executionCondition: null,
+        cancellationCondition: null,
+        expiresAt: null,
+        custom: null
+      })
+      pluginB.once('receive', (transfer) => {
+        assert.equals(tranfer.id, 'uuid-or-something')
+        done()
+      })
+    })
+
+    it('should send an optimistic transfer with 1 amount', function (done) {
+      pluginA.send({
+        id: 'uuid-or-something',
+        account: optsB.account, // TODO: change this so account doesn't have
+                                // to be a field
+        amount: '1.0',
         data: null,
         noteToSelf: null,
         executionCondition: null,
