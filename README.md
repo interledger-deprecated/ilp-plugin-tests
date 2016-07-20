@@ -14,6 +14,12 @@ For example, you could run:
 ```sh
 npm install ilp-plugin-bells
 export ILP_PLUGIN_TEST='ilp-plugin-bells'
-export ILP_PLUGIN_OPTS='{"username":"bob", ... }'
+export ILP_PLUGIN_OPTS='[{
+  "username":"bob",
+  ...
+}, {
+  "username":"alice",
+  ...
+}]'
 npm test
 ```
