@@ -7,6 +7,8 @@ const Plugin = testPlugin.plugin
 const opts = testPlugin.opts[0]
 let plugin = null
 
+const handle = (err) => console.error(err)
+
 describe('Plugin setup', function () {
   describe('constructor', function () {
     it('should succeed with valid configuration', function () {
@@ -43,9 +45,10 @@ describe('Plugin setup', function () {
     let p = null
     it('connects and emits "connect"', function (done) {
       plugin.once('connect', () => {
+        console.log('got this thing emitted')
         done()
       })
-      p = plugin.connect()
+      p = plugin.connect().catch(handle)
     })
 
     it('should return "true" from isConnected after connect', function () {
@@ -71,7 +74,7 @@ describe('Plugin setup', function () {
     })
 
     let p = null
-    it('disconnects', function (done) {
+    it('disconnects and emits "disconnect"', function (done) {
       plugin.once('disconnect', () => {
         done()
       })
@@ -85,7 +88,7 @@ describe('Plugin setup', function () {
       })
     })
 
-    it('should return "false" from isConnected after connect', function () {
+    it('should return "false" from isConnected after disconnect', function () {
       assert.isFalse(plugin.isConnected())
     })
 
