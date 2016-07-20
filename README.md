@@ -1,4 +1,4 @@
-# Ilp-Plugin Test
+# Ilp-Plugin Tests
 
 > A test suite for ILP LedgerPlugins, to make sure they conform to the
 > javascript LedgerPlugin interface.
