@@ -11,7 +11,7 @@ describe('Plugin setup', function () {
   describe('constructor', function () {
     it('should succeed with valid configuration', function () {
       plugin = new Plugin(opts)
-      assert.instanceOf(plugin, Plugin)
+      assert.isObject(plugin)
     })
 
     it('should throw when options are missing', function () {
