@@ -1,10 +1,14 @@
 {
-  "name": "ilp-plugin-test",
+  "name": "ilp-plugin-tests",
   "version": "1.0.0",
   "description": "Test suite for ledger plugins",
   "main": "index.js",
   "scripts": {
     "test": "istanbul test -- _mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/interledger/js-ilp-plugin-tests"
   },
   "keywords": [
     "test",
