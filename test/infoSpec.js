@@ -32,4 +32,30 @@ describe('Plugin info', function () {
       assert.isString(p.currencySymbol, 'should contain "currencySymbol"')
     })
   })
+
+  describe('getBalance', function () {
+    it('should be a function', function () {
+      assert.isFunction(plugin.getBalance)
+    })
+
+    it('should return to number stored as a string', function * () {
+      const p = yield plugin.getBalance()
+      assert.isString(p)
+      assert.isFalse(isNaN(p - 0), 'should be a number in string form')
+    })
+  })
+
+  describe('getConnectors', function () {
+    it('should be a function', function () {
+      assert.isFunction(plugin.getConnectors)
+    })
+  
+    it('should return promise to array of strings', function * () {
+      const p = yield plugin.getConnectors()
+      assert.isArray(p)
+      for (e of p) {
+        assert.isString(e)
+      }
+    })
+  })
 })
