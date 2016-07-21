@@ -77,7 +77,6 @@ describe('Plugin transfers', function () {
         assert.equal(transfer.id, myId)
         done()
       })
-      pluginB.once('receive', (transfer) => { console.log('uh oh') })
 
       pluginA.send(Object.assign({
         id: myId,
@@ -91,13 +90,109 @@ describe('Plugin transfers', function () {
     })
 
     it('should reject optimistic transfer with amount -1', function (done) {
+      const id = uuid()
+
       pluginA.once('reject', (transfer, reason) => {
-        assert.equal(transfer.id, myId)
+        assert.equal(transfer.id, id)
         done()
       })
 
       pluginA.send(Object.assign({
-        id: myId,
+        id: id,
+        amount: '-1.0',
+        data: new Buffer(''),
+        noteToSelf: new Buffer(''),
+        executionCondition: undefined,
+        cancellationCondition: undefined,
+        expiresAt: undefined
+      }, transferA)).catch(handle)
+    })
+
+    it('should reject a transfer missing `account`', function (done) {
+      const id = uuid()
+
+      pluginA.once('reject', (transfer, reason) => {
+        assert.equal(transfer.id, id)
+        done()
+      })
+
+      let transfer = Object.assign({
+        id: id,
+        amount: '1.0',
+        data: new Buffer(''),
+        noteToSelf: new Buffer(''),
+        executionCondition: undefined,
+        cancellationCondition: undefined,
+        expiresAt: undefined
+      }, transferA)
+      transfer.account = undefined
+
+      pluginA.send(transfer).catch(handle)
+    })
+
+    it('should reject a transfer missing `amount`', function (done) {
+      const id = uuid()
+
+      pluginA.once('reject', (transfer, reason) => {
+        assert.equal(transfer.id, id)
+        done()
+      })
+
+      let transfer = Object.assign({
+        id: id,
+        amount: '1.0',
+        data: new Buffer(''),
+        noteToSelf: new Buffer(''),
+        executionCondition: undefined,
+        cancellationCondition: undefined,
+        expiresAt: undefined
+      }, transferA)
+      transfer.amount = undefined
+
+      pluginA.send(transfer).catch(handle)
+    })
+  })
+
+  describe('replyToTransfer', function (done) {
+    it('should reply to a successful transfer', function (done) {
+      const id = uuid()
+
+      pluginB.once('receive', (transfer) => {
+        pluginA.once('reply', (transfer, message) => {
+          assert.equal(transfer.id, id)
+          done()
+        })
+        
+        assert.equal(transfer.id, id)
+        pluginB.replyToTransfer(transfer.id, new Buffer('hello'))
+      })
+
+      pluginA.send(Object.assign({
+        id: id,
+        amount: '1.0',
+        data: new Buffer(''),
+        noteToSelf: new Buffer(''),
+        executionCondition: undefined,
+        cancellationCondition: undefined,
+        expiresAt: undefined
+      }, transferA)).catch(handle)
+    })
+
+    it('should reply to a failed transfer', function (done) {
+      const id = uuid()
+
+      pluginA.once('reject', (transfer) => {
+        pluginA.once('reply', (transfer, message) => {
+          assert.equal(transfer.id, id)
+          done()
+        })
+        
+        assert.equal(transfer.id, id)
+        pluginB.replyToTransfer(transfer.id, new Buffer('hello'))
+      })
+
+      pluginA.send(Object.assign({
+        id: id,
         amount: '-1.0',
         data: new Buffer(''),
         noteToSelf: new Buffer(''),

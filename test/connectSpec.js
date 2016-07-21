@@ -35,6 +35,10 @@ describe('Plugin setup', function () {
     it('should return true on valid credentials', function () {
       assert.isTrue(Plugin.canConnectToLedger(opts))
     })
+
+    it('should return false on invalid credentials', function () {
+      assert.isFalse(Plugin.canConnectToLedger(null))
+    })
   })
 
   describe('connect', function () {

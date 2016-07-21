@@ -26,10 +26,8 @@ describe('Plugin info', function () {
     it('should return a promise to object with correct fields', function * () {
       const p = yield plugin.getInfo()
       assert.isObject(p)
-      assert.isString(p.precision, 'should contain "precision"')
-      assert.isFalse(isNaN(p.precision - 0), '"precision" should be a number"')
-      assert.isString(p.scale, 'should contain "scale"')
-      assert.isFalse(isNaN(p.scale - 0), '"scale" should be a number"')
+      assert.isNumber(p.precision, 'should contain "precision"')
+      assert.isNumber(p.scale, 'should contain "scale"')
       assert.isString(p.currencyCode, 'should contain "currencyCode"')
       assert.isString(p.currencySymbol, 'should contain "currencySymbol"')
     })
