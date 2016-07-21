@@ -15,7 +15,7 @@ let pluginB = null
 
 const handle = (err) => console.error(err)
 
-describe('Plugin transfers', function () {
+describe('Plugin transfers (optimistic)', function () {
   it('should create two plugins', function () {
     pluginA = new Plugin(optsA)
     pluginB = new Plugin(optsB)
