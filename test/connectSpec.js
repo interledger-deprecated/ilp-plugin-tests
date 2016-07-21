@@ -23,24 +23,6 @@ describe('Plugin setup', function () {
     })
   })
 
-  describe('canConnectToLedger', function () {
-    it('should be a function', function () {
-      assert.isFunction(Plugin.canConnectToLedger) 
-    })
-  
-    it('should always return boolean', function () {
-      assert.isBoolean(Plugin.canConnectToLedger({}))
-    })
-  
-    it('should return true on valid credentials', function () {
-      assert.isTrue(Plugin.canConnectToLedger(opts))
-    })
-
-    it('should return false on invalid credentials', function () {
-      assert.isFalse(Plugin.canConnectToLedger(null))
-    })
-  })
-
   describe('connect', function () {
     it('should be a function', function () {
       assert.isFunction(plugin.connect)
