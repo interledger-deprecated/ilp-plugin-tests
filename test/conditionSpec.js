@@ -58,11 +58,10 @@ describe('Plugin transfers (universal)', function () {
       }, transferA))
     })
 
-    /*
-    it('should not exucute transfer with wrong fulfillment', function (done) {
+    it('should time out a transfer', function (done) {
       const id = uuid()
 
-      this.pluginB.once('receive', (transfer) => {
+      this.pluginA.once('reject', (transfer) => {
         assert.equal(transfer.id, id)
         done()
       })
@@ -73,9 +72,8 @@ describe('Plugin transfers (universal)', function () {
         data: new Buffer(''),
         noteToSelf: new Buffer(''),
         executionCondition: condition,
-        expiresAt: makeExpiry(10)
+        expiresAt: makeExpiry(0)
       }, transferA))
     })
-    */
   })
 })
