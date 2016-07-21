@@ -18,7 +18,9 @@ exports.options = [
         'account': 'http://localhost:3000/accounts/bob',
         'ledger': 'http://localhost:3000',
         'type': 'bells'
-      }
+      },
+      'id': 'http://localhost:3000',
+      'conector': 'http://localhost:4000'
     },
     // These objects are merged with transfers originating from
     // their respective plugins. Should specify the other plugin's
@@ -38,7 +40,9 @@ exports.options = [
         'account': 'http://localhost:3000/accounts/alice',
         'ledger': 'http://localhost:3000',
         'type': 'bells'
-      }
+      },
+      'id': 'http://localhost:3000',
+      'conector': 'http://localhost:4000'
     },
     'transfer': {
       'account': 'http://localhost:3000/accounts/bob'
