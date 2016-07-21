@@ -125,7 +125,7 @@ describe('Plugin transfers (optimistic)', function () {
         done()
       })
 
-      let transfer = Object.assign({
+      this.pluginA.send(Object.assign({
         id: id,
         amount: '1.0',
         data: new Buffer(''),
@@ -133,10 +133,9 @@ describe('Plugin transfers (optimistic)', function () {
         executionCondition: undefined,
         cancellationCondition: undefined,
         expiresAt: undefined
-      }, transferA)
-      transfer.account = undefined
-
-      this.pluginA.send(transfer).catch(handle)
+      }, transferA, {
+        account: undefined
+      })).catch(handle)
     })
 
     it('should reject a transfer missing `amount`', function (done) {
@@ -147,18 +146,15 @@ describe('Plugin transfers (optimistic)', function () {
         done()
       })
 
-      let transfer = Object.assign({
+      this.pluginA.send(Object.assign({
         id: id,
-        amount: '1.0',
+        amount: undefined,
         data: new Buffer(''),
         noteToSelf: new Buffer(''),
         executionCondition: undefined,
         cancellationCondition: undefined,
         expiresAt: undefined
-      }, transferA)
-      transfer.amount = undefined
-
-      this.pluginA.send(transfer).catch(handle)
+      }, transferA)).catch(handle)
     })
   })
 
