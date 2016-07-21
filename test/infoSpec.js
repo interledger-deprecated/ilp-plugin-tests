@@ -58,4 +58,11 @@ describe('Plugin info', function () {
       }
     })
   })
+
+  it('should disconnect again', function (done) {
+    plugin.once('disconnect', () => {
+      done()
+    })
+    plugin.disconnect()
+  })
 })

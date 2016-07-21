@@ -45,12 +45,9 @@ describe('Plugin setup', function () {
     let p = null
     it('connects and emits "connect"', function (done) {
       plugin.once('connect', () => {
-        console.log('but not here')
         done()
       })
-      console.log('here')
       p = plugin.connect().catch(handle)
-      console.log('here too')
     })
 
     it('should return "true" from isConnected after connect', function () {
@@ -97,6 +94,13 @@ describe('Plugin setup', function () {
     it('should reconnect', function * () {
       yield plugin.connect()
       assert.isTrue(plugin.isConnected())
+    })
+
+    it('should disconnect again', function (done) {
+      plugin.once('disconnect', () => {
+        done()
+      })
+      plugin.disconnect()
     })
   })
 })

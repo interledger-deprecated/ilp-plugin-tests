@@ -34,9 +34,13 @@ describe('Plugin transfers', function () {
 
   describe('send', function () {
     it('should send an optimistic transfer with 0 amount', function (done) {
-      let date = new Date()
-      date.setSeconds(date.getSeconds() + 2)
-      let id = uuid()
+      const id = uuid()
+
+      pluginB.once('receive', (transfer) => {
+        assert.equal(transfer.id, id)
+        done()
+      })
+
       pluginA.send(Object.assign({
         id: id,
         amount: '0.0',
@@ -44,32 +48,63 @@ describe('Plugin transfers', function () {
         noteToSelf: new Buffer(''),
         executionCondition: undefined,
         cancellationCondition: undefined,
-        expiresAt: date.toISOString(),
+        expiresAt: undefined
       }, transferA)).catch(handle)
-      pluginB.once('receive', (transfer) => {
-        assert.equals(tranfer.id, id)
-        done()
-      })
     })
 
-    it('should send an optimistic transfer with 1 amount', function (done) {
-      let date = new Date()
-      date.setSeconds(date.getSeconds() + 2)
-      let id = uuid()
-      assert.isTrue(pluginA.isConnected())
+    let myId = null
+    it('should send an optimistic transfer with amount 1', function (done) {
+      myId = uuid()
+
+      pluginB.once('receive', (transfer) => {
+        assert.equal(transfer.id, myId)
+        done()
+      })
+
       pluginA.send(Object.assign({
-        id: id,
+        id: myId,
         amount: '1.0',
         data: new Buffer(''),
         noteToSelf: new Buffer(''),
         executionCondition: undefined,
         cancellationCondition: undefined,
-        expiresAt: date.toISOString(),
+        expiresAt: undefined
       }, transferA)).catch(handle)
-      pluginB.once('receive', (transfer) => {
-        assert.equals(tranfer.id, id)
+    })
+    
+    it('should reject optimistic transfer with repeat id', function (done) {
+      pluginA.once('reject', (transfer, reason) => {
+        assert.equal(transfer.id, myId)
         done()
       })
+      pluginB.once('receive', (transfer) => { console.log('uh oh') })
+
+      pluginA.send(Object.assign({
+        id: myId,
+        amount: '0.0',
+        data: new Buffer(''),
+        noteToSelf: new Buffer(''),
+        executionCondition: undefined,
+        cancellationCondition: undefined,
+        expiresAt: undefined
+      }, transferA)).catch(handle)
+    })
+
+    it('should reject optimistic transfer with amount -1', function (done) {
+      pluginA.once('reject', (transfer, reason) => {
+        assert.equal(transfer.id, myId)
+        done()
+      })
+
+      pluginA.send(Object.assign({
+        id: myId,
+        amount: '-1.0',
+        data: new Buffer(''),
+        noteToSelf: new Buffer(''),
+        executionCondition: undefined,
+        cancellationCondition: undefined,
+        expiresAt: undefined
+      }, transferA)).catch(handle)
     })
   })
 })
