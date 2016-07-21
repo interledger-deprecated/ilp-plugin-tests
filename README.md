@@ -33,6 +33,5 @@ could run:
 
 ```sh
 npm install ilp-plugin-bells
-export ILP_PLUGIN_TEST_CONFIG='./configs/ilp-plugin-bells.js'
-npm test
+ILP_PLUGIN_TEST_CONFIG='./configs/ilp-plugin-bells.js' npm test
 ```
