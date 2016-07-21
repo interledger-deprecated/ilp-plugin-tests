@@ -4,7 +4,7 @@ const assert = require('chai').assert
 const testPlugin = require('..')
 
 const Plugin = testPlugin.plugin
-const opts = testPlugin.opts[0]
+const opts = testPlugin.options[0].pluginOptions
 let plugin = null
 
 const handle = (err) => console.error(err)
@@ -45,10 +45,12 @@ describe('Plugin setup', function () {
     let p = null
     it('connects and emits "connect"', function (done) {
       plugin.once('connect', () => {
-        console.log('got this thing emitted')
+        console.log('but not here')
         done()
       })
+      console.log('here')
       p = plugin.connect().catch(handle)
+      console.log('here too')
     })
 
     it('should return "true" from isConnected after connect', function () {

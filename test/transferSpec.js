@@ -2,17 +2,23 @@
 
 const assert = require('chai').assert
 const testPlugin = require('..')
+const uuid = require('uuid4')
 
 const Plugin = testPlugin.plugin
-const optsA = testPlugin.opts[0]
-const optsB = testPlugin.opts[1]
+
+const optsA = testPlugin.options[0].pluginOptions
+const optsB = testPlugin.options[1].pluginOptions
+const transferA = testPlugin.options[0].transfer
+const transferB = testPlugin.options[1].transfer
 let pluginA = null
 let pluginB = null
 
+const handle = (err) => console.error(err)
+
 describe('Plugin transfers', function () {
   it('should create two plugins', function () {
-    pluginA = Plugin(optsA)
-    pluginB = Plugin(optsB)
+    pluginA = new Plugin(optsA)
+    pluginB = new Plugin(optsB)
 
     assert.isObject(pluginA)
     assert.isObject(pluginB)
@@ -28,39 +34,40 @@ describe('Plugin transfers', function () {
 
   describe('send', function () {
     it('should send an optimistic transfer with 0 amount', function (done) {
-      pluginA.send({
-        id: 'uuid-or-something',
-        account: optsB.account, // TODO: change this so account doesn't have
-                                // to be a field
+      let date = new Date()
+      date.setSeconds(date.getSeconds() + 2)
+      let id = uuid()
+      pluginA.send(Object.assign({
+        id: id,
         amount: '0.0',
-        data: null,
-        noteToSelf: null,
-        executionCondition: null,
-        cancellationCondition: null,
-        expiresAt: null,
-        custom: null
-      })
+        data: new Buffer(''),
+        noteToSelf: new Buffer(''),
+        executionCondition: undefined,
+        cancellationCondition: undefined,
+        expiresAt: date.toISOString(),
+      }, transferA)).catch(handle)
       pluginB.once('receive', (transfer) => {
-        assert.equals(tranfer.id, 'uuid-or-something')
+        assert.equals(tranfer.id, id)
         done()
       })
     })
 
     it('should send an optimistic transfer with 1 amount', function (done) {
-      pluginA.send({
-        id: 'uuid-or-something',
-        account: optsB.account, // TODO: change this so account doesn't have
-                                // to be a field
+      let date = new Date()
+      date.setSeconds(date.getSeconds() + 2)
+      let id = uuid()
+      assert.isTrue(pluginA.isConnected())
+      pluginA.send(Object.assign({
+        id: id,
         amount: '1.0',
-        data: null,
-        noteToSelf: null,
-        executionCondition: null,
-        cancellationCondition: null,
-        expiresAt: null,
-        custom: null
-      })
+        data: new Buffer(''),
+        noteToSelf: new Buffer(''),
+        executionCondition: undefined,
+        cancellationCondition: undefined,
+        expiresAt: date.toISOString(),
+      }, transferA)).catch(handle)
       pluginB.once('receive', (transfer) => {
-        assert.equals(tranfer.id, 'uuid-or-something')
+        assert.equals(tranfer.id, id)
         done()
       })
     })

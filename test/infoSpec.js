@@ -4,7 +4,7 @@ const assert = require('chai').assert
 const testPlugin = require('..')
 
 const Plugin = testPlugin.plugin
-const opts = testPlugin.opts[0]
+const opts = testPlugin.options[0].pluginOptions
 let plugin = null
 
 describe('Plugin info', function () {
@@ -53,7 +53,7 @@ describe('Plugin info', function () {
     it('should return promise to array of strings', function * () {
       const p = yield plugin.getConnectors()
       assert.isArray(p)
-      for (e of p) {
+      for (let e of p) {
         assert.isString(e)
       }
     })

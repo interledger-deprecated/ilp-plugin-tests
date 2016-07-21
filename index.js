@@ -1,11 +1,11 @@
 'use strict'
 
-const plugin = require(process.env.ILP_PLUGIN_TEST)
-const opts = JSON.parse(process.env.ILP_PLUGIN_OPTS)
-const accounts = JSON.parse(process.env.ILP_PLUGIN_TRANSFER_OPTS)
+const config = require(process.env.ILP_PLUGIN_TEST_CONFIG)
+const plugin = config.plugin
+const options = config.options
 
-if (!plugin || !opts || !accounts) {
-  throw new Error('FATAL: required environment variables are unset')
+if (!plugin || !options) {
+  throw new Error('FATAL: required options are unset')
 }
 
-module.exports = { plugin, opts, accounts }
+module.exports = { plugin, options }
