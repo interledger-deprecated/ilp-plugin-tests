@@ -10,38 +10,32 @@ const optsA = testPlugin.options[0].pluginOptions
 const optsB = testPlugin.options[1].pluginOptions
 const transferA = testPlugin.options[0].transfer
 const transferB = testPlugin.options[1].transfer
-let pluginA = null
-let pluginB = null
 
 const handle = (err) => console.error(err)
 
 describe('Plugin transfers (optimistic)', function () {
-  it('should create two plugins', function () {
-    pluginA = new Plugin(optsA)
-    pluginB = new Plugin(optsB)
 
-    assert.isObject(pluginA)
-    assert.isObject(pluginB)
-  })
+  beforeEach(function * () {
+    this.pluginA = new Plugin(optsA)
+    this.pluginB = new Plugin(optsB)
+      
+    yield this.pluginA.connect()
+    yield this.pluginB.connect()
 
-  it('should connect two plugins', function * () {
-    yield pluginA.connect()
-    yield pluginB.connect()
-
-    assert.isTrue(pluginA.isConnected())
-    assert.isTrue(pluginB.isConnected())
+    assert.isTrue(this.pluginA.isConnected())
+    assert.isTrue(this.pluginB.isConnected())
   })
 
   describe('send', function () {
     it('should send an optimistic transfer with 0 amount', function (done) {
       const id = uuid()
 
-      pluginB.once('receive', (transfer) => {
+      this.pluginB.once('receive', (transfer) => {
         assert.equal(transfer.id, id)
         done()
       })
 
-      pluginA.send(Object.assign({
+      this.pluginA.send(Object.assign({
         id: id,
         amount: '0.0',
         data: new Buffer(''),
@@ -52,17 +46,16 @@ describe('Plugin transfers (optimistic)', function () {
       }, transferA)).catch(handle)
     })
 
-    let myId = null
     it('should send an optimistic transfer with amount 1', function (done) {
-      myId = uuid()
+      const id = uuid()
 
-      pluginB.once('receive', (transfer) => {
-        assert.equal(transfer.id, myId)
+      this.pluginB.once('receive', (transfer) => {
+        assert.equal(transfer.id, id)
         done()
       })
 
-      pluginA.send(Object.assign({
-        id: myId,
+      this.pluginA.send(Object.assign({
+        id: id,
         amount: '1.0',
         data: new Buffer(''),
         noteToSelf: new Buffer(''),
@@ -73,14 +66,30 @@ describe('Plugin transfers (optimistic)', function () {
     })
     
     it('should reject optimistic transfer with repeat id', function (done) {
-      pluginA.once('reject', (transfer, reason) => {
-        assert.equal(transfer.id, myId)
-        done()
+      const id = uuid()
+
+      this.pluginA.once('receive', (transfer, reason) => {
+        assert.equal(transfer.id, id)
+
+        this.pluginA.once('reject', (transfer, reason) => {
+          assert.equal(transfer.id, id)
+          done()
+        })
+
+        this.pluginA.send(Object.assign({
+          id: id,
+          amount: '1.0',
+          data: new Buffer(''),
+          noteToSelf: new Buffer(''),
+          executionCondition: undefined,
+          cancellationCondition: undefined,
+          expiresAt: undefined
+        }, transferA)).catch(handle)
       })
 
-      pluginA.send(Object.assign({
-        id: myId,
-        amount: '0.0',
+      this.pluginA.send(Object.assign({
+        id: id,
+        amount: '1.0',
         data: new Buffer(''),
         noteToSelf: new Buffer(''),
         executionCondition: undefined,
@@ -92,12 +101,12 @@ describe('Plugin transfers (optimistic)', function () {
     it('should reject optimistic transfer with amount -1', function (done) {
       const id = uuid()
 
-      pluginA.once('reject', (transfer, reason) => {
+      this.pluginA.once('reject', (transfer, reason) => {
         assert.equal(transfer.id, id)
         done()
       })
 
-      pluginA.send(Object.assign({
+      this.pluginA.send(Object.assign({
         id: id,
         amount: '-1.0',
         data: new Buffer(''),
@@ -111,7 +120,7 @@ describe('Plugin transfers (optimistic)', function () {
     it('should reject a transfer missing `account`', function (done) {
       const id = uuid()
 
-      pluginA.once('reject', (transfer, reason) => {
+      this.pluginA.once('reject', (transfer, reason) => {
         assert.equal(transfer.id, id)
         done()
       })
@@ -127,13 +136,13 @@ describe('Plugin transfers (optimistic)', function () {
       }, transferA)
       transfer.account = undefined
 
-      pluginA.send(transfer).catch(handle)
+      this.pluginA.send(transfer).catch(handle)
     })
 
     it('should reject a transfer missing `amount`', function (done) {
       const id = uuid()
 
-      pluginA.once('reject', (transfer, reason) => {
+      this.pluginA.once('reject', (transfer, reason) => {
         assert.equal(transfer.id, id)
         done()
       })
@@ -149,7 +158,7 @@ describe('Plugin transfers (optimistic)', function () {
       }, transferA)
       transfer.amount = undefined
 
-      pluginA.send(transfer).catch(handle)
+      this.pluginA.send(transfer).catch(handle)
     })
   })
 
@@ -157,17 +166,17 @@ describe('Plugin transfers (optimistic)', function () {
     it('should reply to a successful transfer', function (done) {
       const id = uuid()
 
-      pluginB.once('receive', (transfer) => {
-        pluginA.once('reply', (transfer, message) => {
+      this.pluginB.once('receive', (transfer) => {
+        this.pluginA.once('reply', (transfer, message) => {
           assert.equal(transfer.id, id)
           done()
         })
         
         assert.equal(transfer.id, id)
-        pluginB.replyToTransfer(transfer.id, new Buffer('hello'))
+        this.pluginB.replyToTransfer(transfer.id, new Buffer('hello'))
       })
 
-      pluginA.send(Object.assign({
+      this.pluginA.send(Object.assign({
         id: id,
         amount: '1.0',
         data: new Buffer(''),
@@ -181,17 +190,17 @@ describe('Plugin transfers (optimistic)', function () {
     it('should reply to a failed transfer', function (done) {
       const id = uuid()
 
-      pluginA.once('reject', (transfer) => {
-        pluginA.once('reply', (transfer, message) => {
+      this.pluginA.once('reject', (transfer) => {
+        this.pluginA.once('reply', (transfer, message) => {
           assert.equal(transfer.id, id)
           done()
         })
         
         assert.equal(transfer.id, id)
-        pluginB.replyToTransfer(transfer.id, new Buffer('hello'))
+        this.pluginB.replyToTransfer(transfer.id, new Buffer('hello'))
       })
 
-      pluginA.send(Object.assign({
+      this.pluginA.send(Object.assign({
         id: id,
         amount: '-1.0',
         data: new Buffer(''),

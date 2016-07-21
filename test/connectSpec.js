@@ -5,15 +5,19 @@ const testPlugin = require('..')
 
 const Plugin = testPlugin.plugin
 const opts = testPlugin.options[0].pluginOptions
-let plugin = null
 
 const handle = (err) => console.error(err)
 
 describe('Plugin setup', function () {
+  beforeEach(function () {
+    this.plugin = new Plugin(opts)
+    assert.isObject(this.plugin)
+  })
+
   describe('constructor', function () {
     it('should succeed with valid configuration', function () {
-      plugin = new Plugin(opts)
-      assert.isObject(plugin)
+      this.plugin = new Plugin(opts)
+      assert.isObject(this.plugin)
     })
 
     it('should throw when options are missing', function () {
@@ -25,68 +29,96 @@ describe('Plugin setup', function () {
 
   describe('connect', function () {
     it('should be a function', function () {
-      assert.isFunction(plugin.connect)
+      assert.isFunction(this.plugin.connect)
     })
 
-    let p = null
     it('connects and emits "connect"', function (done) {
-      plugin.once('connect', () => {
+      this.plugin.once('connect', () => {
         done()
       })
-      p = plugin.connect().catch(handle)
+      this.plugin.connect().catch(handle)
     })
 
-    it('should return "true" from isConnected after connect', function () {
-      assert.isTrue(plugin.isConnected())
+    it('returns "true" from isConnected after connect', function (done) {
+      this.plugin.once('connect', () => {
+        assert.isTrue(this.plugin.isConnected())
+        done()
+      })
+      this.plugin.connect().catch(handle)
     })
   
     it('should resolve to null', function (done) {
-      p.then((result) => {
-        assert.isNull(result)
-        done()
-      })
+      this.plugin.connect()
+        .then((result) => {
+          assert.isNull(result)
+          done()
+        })
     })
 
-    it('ignores if called twice', function * () {
-      yield plugin.connect()
-      assert.isTrue(plugin.isConnected())
+    it('ignores if called twice', function (done) {
+      this.plugin.once('connect', () => {
+        assert.isTrue(this.plugin.isConnected())
+        done()
+      })
+      
+      this.plugin.connect()
+      this.plugin.connect()
     })
   })
 
   describe('disconnect', function () {
     it('should be a function', function () {
-      assert.isFunction(plugin.disconnect)
+      assert.isFunction(this.plugin.disconnect)
     })
 
-    let p = null
     it('disconnects and emits "disconnect"', function (done) {
-      plugin.once('disconnect', () => {
+      this.plugin.once('disconnect', () => {
         done()
       })
-      p = plugin.disconnect()
+
+      this.plugin.once('connect', () => {
+        this.plugin.disconnect()
+      })
+
+      this.plugin.connect()
     })
 
     it('should resolve to null', function (done) {
-      p.then((result) => {
-        assert.isNull(result)
-        done()
+      this.plugin.once('connect', () => {
+        this.plugin.disconnect()
+          .then((result) => {
+            assert.isNull(result)
+            done()
+          })
       })
+
+      this.plugin.connect()
     })
 
-    it('should return "false" from isConnected after disconnect', function () {
-      assert.isFalse(plugin.isConnected())
-    })
-
-    it('should reconnect', function * () {
-      yield plugin.connect()
-      assert.isTrue(plugin.isConnected())
-    })
-
-    it('should disconnect again', function (done) {
-      plugin.once('disconnect', () => {
-        done()
+    it('returns "false" from isConnected after disconnect', function (done) {
+      this.plugin.once('connect', () => {
+        this.plugin.disconnect()
+          .then((result) => {
+            assert.isFalse(this.plugin.isConnected())
+            done()
+          })
       })
-      plugin.disconnect()
+
+      this.plugin.connect()
+    })
+
+    it('should reconnect', function (done) {
+      this.plugin.once('connect', () => {
+        this.plugin.once('disconnect', () => {
+          this.plugin.once('connect', () => {
+            assert.isTrue(this.plugin.isConnected())
+            done()
+          })
+          this.plugin.connect()
+        })
+        this.plugin.disconnect()
+      })
+      this.plugin.connect()
     })
   })
 })

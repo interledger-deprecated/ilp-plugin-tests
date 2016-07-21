@@ -5,26 +5,24 @@ const testPlugin = require('..')
 
 const Plugin = testPlugin.plugin
 const opts = testPlugin.options[0].pluginOptions
-let plugin = null
 
 describe('Plugin info', function () {
-  it('should instantiate a plugin', function () {
-    plugin = new Plugin(opts)
-    assert.isObject(plugin)
-  })
+  
+  beforeEach(function * () {
+    this.plugin = new Plugin(opts)
+    assert.isObject(this.plugin)
 
-  it('should connect the plugin', function * () {
-    yield plugin.connect()
-    assert.isTrue(plugin.isConnected())
+    yield this.plugin.connect()
+    assert.isTrue(this.plugin.isConnected())
   })
 
   describe('getInfo', function () {
     it('should be a function', function () {
-      assert.isFunction(plugin.getInfo)
+      assert.isFunction(this.plugin.getInfo)
     })
 
     it('should return a promise to object with correct fields', function * () {
-      const p = yield plugin.getInfo()
+      const p = yield this.plugin.getInfo()
       assert.isObject(p)
       assert.isNumber(p.precision, 'should contain "precision"')
       assert.isNumber(p.scale, 'should contain "scale"')
@@ -35,11 +33,11 @@ describe('Plugin info', function () {
 
   describe('getBalance', function () {
     it('should be a function', function () {
-      assert.isFunction(plugin.getBalance)
+      assert.isFunction(this.plugin.getBalance)
     })
 
     it('should return to number stored as a string', function * () {
-      const p = yield plugin.getBalance()
+      const p = yield this.plugin.getBalance()
       assert.isString(p)
       assert.isFalse(isNaN(p - 0), 'should be a number in string form')
     })
@@ -47,11 +45,11 @@ describe('Plugin info', function () {
 
   describe('getConnectors', function () {
     it('should be a function', function () {
-      assert.isFunction(plugin.getConnectors)
+      assert.isFunction(this.plugin.getConnectors)
     })
   
     it('should return promise to array of strings', function * () {
-      const p = yield plugin.getConnectors()
+      const p = yield this.plugin.getConnectors()
       assert.isArray(p)
       for (let e of p) {
         assert.isString(e)
@@ -60,9 +58,9 @@ describe('Plugin info', function () {
   })
 
   it('should disconnect again', function (done) {
-    plugin.once('disconnect', () => {
+    this.plugin.once('disconnect', () => {
       done()
     })
-    plugin.disconnect()
+    this.plugin.disconnect()
   })
 })
