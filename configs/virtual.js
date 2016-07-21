@@ -7,6 +7,9 @@ store.get = (k) => { return Promise.resolve(s[k]) }
 store.put = (k, v) => { s[k] = v; return Promise.resolve(null) }
 store.del = (k) => { s[k] = undefined; return Promise.resolve(null) }
 
+const crypto = require('crypto')
+const token = crypto.randomBytes(32).toString('hex')
+
 // These objects specify the configs of different
 // plugins. There must be 2, so that they can send
 // transfers to one another.
@@ -21,7 +24,7 @@ exports.options = [
         "host": "ws://broker.hivemq.com:8000",
         "limit": "0",
         "balance": "100",
-        "token": "487810b8f3ffc76d8ab0130a6a3c9845",
+        "token": token,
         "secret": "not used yet",
       },
       "store": store
@@ -39,7 +42,7 @@ exports.options = [
       'auth': {
         "account": "noob",
         "host": "ws://broker.hivemq.com:8000",
-        "token": "487810b8f3ffc76d8ab0130a6a3c9845"
+        "token": token
       }
     },
     'transfer': {

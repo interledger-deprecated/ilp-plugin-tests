@@ -26,12 +26,12 @@ should contain options in the form:
 }
 ```
 
-The file [./configs/example.js
-](https://github.com/interledger/js-ilp-plugin-tests/blob/master/configs/example.js)
-contains an example set of options. For example, to test `ilp-plugin-bells`, you
+The file [./configs/virtual.js
+](https://github.com/interledger/js-ilp-plugin-tests/blob/master/configs/virtual.js)
+contains an example set of options. For example, to test `ilp-plugin-virtual`, you
 could run:
 
 ```sh
-npm install ilp-plugin-bells
-ILP_PLUGIN_TEST_CONFIG='./configs/ilp-plugin-bells.js' npm test
+npm install ilp-plugin-virtual
+ILP_PLUGIN_TEST_CONFIG='./configs/virtual.js' npm test
 ```
