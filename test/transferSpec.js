@@ -26,6 +26,11 @@ describe('Plugin transfers (optimistic)', function () {
     assert.isTrue(this.pluginB.isConnected())
   })
 
+  afterEach(function * () {
+    if (this.pluginA.isConnected()) yield this.pluginA.disconnect()
+    if (this.pluginB.isConnected()) yield this.pluginB.disconnect()
+  })
+
   describe('send', function () {
     it('should send an optimistic transfer with 0 amount', function (done) {
       const id = uuid()

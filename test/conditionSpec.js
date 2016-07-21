@@ -30,6 +30,11 @@ describe('Plugin transfers (universal)', function () {
     assert.isTrue(this.pluginB.isConnected())
   })
 
+  afterEach(function * () {
+    if (this.pluginA.isConnected()) yield this.pluginA.disconnect()
+    if (this.pluginB.isConnected()) yield this.pluginB.disconnect()
+  })
+
   describe('send', function () {
     const condition = 'cc:0:3:47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU:0'
     const fulfillment = 'cf:0:'
@@ -73,6 +78,30 @@ describe('Plugin transfers (universal)', function () {
         noteToSelf: new Buffer(''),
         executionCondition: condition,
         expiresAt: makeExpiry(0)
+      }, transferA))
+    })
+
+    it('should not fulfill with invalid fulfillment', function (done) {
+      const id = uuid()
+
+      this.pluginA.once('reject', (transfer) => {
+        assert.equal(transfer.id, id)
+        done()
+      })
+
+      this.pluginB.once('receive', (transfer) => {
+        assert.equal(transfer.id, id)
+        this.pluginB.fulfillCondition(id, 'garbage')
+      })
+
+      // TODO: write this in a way that doesn't need a fast ledger
+      this.pluginA.send(Object.assign({
+        id: id,
+        amount: '0.0',
+        data: new Buffer(''),
+        noteToSelf: new Buffer(''),
+        executionCondition: condition,
+        expiresAt: makeExpiry(1)
       }, transferA))
     })
   })

@@ -16,6 +16,10 @@ describe('Plugin info', function () {
     assert.isTrue(this.plugin.isConnected())
   })
 
+  afterEach(function * () {
+    if (this.plugin.isConnected()) yield this.plugin.disconnect()
+  })
+
   describe('getInfo', function () {
     it('should be a function', function () {
       assert.isFunction(this.plugin.getInfo)

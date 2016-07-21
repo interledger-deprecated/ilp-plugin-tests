@@ -14,6 +14,10 @@ describe('Plugin setup', function () {
     assert.isObject(this.plugin)
   })
 
+  afterEach(function * () {
+    if (this.plugin.isConnected()) yield this.plugin.disconnect()
+  })
+
   describe('constructor', function () {
     it('should succeed with valid configuration', function () {
       this.plugin = new Plugin(opts)
