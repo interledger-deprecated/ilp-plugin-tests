@@ -19,7 +19,7 @@ const makeExpiry = (t) => {
   return (new Date((new Date()).getTime() + t * 1000)).toISOString()
 }
 
-describe('Plugin transfers (universal)', function () {
+describe.only('Plugin transfers (universal)', function () {
   
   beforeEach(function * () {
     this.pluginA = new Plugin(optsA)
@@ -111,7 +111,7 @@ describe('Plugin transfers (universal)', function () {
 
       this.pluginA.send(Object.assign({
         id: id,
-        amount: '0.0',
+        amount: '1.0',
         data: new Buffer(''),
         noteToSelf: new Buffer(''),
         executionCondition: condition,
