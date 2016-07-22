@@ -34,8 +34,6 @@ describe('Plugin info', function () {
       assert.isObject(p)
       assert.isNumber(p.precision, 'should contain "precision"')
       assert.isNumber(p.scale, 'should contain "scale"')
-      assert.isString(p.currencyCode, 'should contain "currencyCode"')
-      assert.isString(p.currencySymbol, 'should contain "currencySymbol"')
     })
   })
 
