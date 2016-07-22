@@ -10,6 +10,7 @@ const optsA = testPlugin.options[0].pluginOptions
 const optsB = testPlugin.options[1].pluginOptions
 const transferA = testPlugin.options[0].transfer
 const transferB = testPlugin.options[1].transfer
+const timeout = testPlugin.timeout
 
 const handle = (err) => console.error(err)
 
@@ -24,6 +25,8 @@ describe('Plugin transfers (optimistic)', function () {
 
     assert.isTrue(this.pluginA.isConnected())
     assert.isTrue(this.pluginB.isConnected())
+
+    this.timeout += timeout
   })
 
   afterEach(function * () {

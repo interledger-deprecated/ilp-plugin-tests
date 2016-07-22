@@ -5,6 +5,7 @@ const testPlugin = require('..')
 
 const Plugin = testPlugin.plugin
 const opts = testPlugin.options[0].pluginOptions
+const timeout = testPlugin.timeout
 
 describe('Plugin info', function () {
   
@@ -14,6 +15,8 @@ describe('Plugin info', function () {
 
     yield this.plugin.connect()
     assert.isTrue(this.plugin.isConnected())
+
+    this.timeout += timeout
   })
 
   afterEach(function * () {

@@ -5,6 +5,7 @@ const testPlugin = require('..')
 
 const Plugin = testPlugin.plugin
 const opts = testPlugin.options[0].pluginOptions
+const timeout = testPlugin.timeout
 
 const handle = (err) => console.error(err)
 
@@ -12,6 +13,8 @@ describe('Plugin setup', function () {
   beforeEach(function () {
     this.plugin = new Plugin(opts)
     assert.isObject(this.plugin)
+
+    this.timeout += timeout
   })
 
   afterEach(function * () {
