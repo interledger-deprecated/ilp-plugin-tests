@@ -5,9 +5,10 @@
 
 ## Usage
 
-To use Ilp-Plugin Tests, just write a module that exports the plugin constructor
-(as `.plugin`), and exports a list of 2 options (as `.opts`). This list of options
-should contain options in the form:
+To use Ilp-Plugin Tests, just write a module that exports the plugin
+constructor (as `.plugin`), a list of 2 options objects (as `.opts`), and a
+timeout for payments to go through (as `.timeout`). This list of options should
+contain options in the form:
 
 ```js
 {

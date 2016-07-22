@@ -1,6 +1,10 @@
 // This field contains the constructor for a plugin
 exports.plugin = require('ilp-plugin-virtual')
 
+// This specifies the number of time in seconds that the plugin needs in order
+// to fulfill a transfer (from send until fulfillment goes through).
+exports.timeout = 1
+
 let store = {}
 let s = store.s = {}
 store.get = (k) => { return Promise.resolve(s[k]) }
