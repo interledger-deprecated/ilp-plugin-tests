@@ -13,7 +13,8 @@ describe('Plugin info', function () {
     this.plugin = new Plugin(opts)
     assert.isObject(this.plugin)
 
-    yield this.plugin.connect()
+    this.plugin.connect()
+    yield new Promise(resolve => this.plugin.once('connect', resolve))
     assert.isTrue(this.plugin.isConnected())
 
     this.timeout += timeout
@@ -43,7 +44,7 @@ describe('Plugin info', function () {
       assert.isFunction(this.plugin.getBalance)
     })
 
-    it('should return to number stored as a string', function * () {
+    it('should return a promise to number stored as a string', function * () {
       const p = yield this.plugin.getBalance()
       assert.isString(p)
       assert.isFalse(isNaN(p - 0), 'should be a number in string form')

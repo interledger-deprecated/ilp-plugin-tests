@@ -43,7 +43,11 @@ describe('Plugin setup', function () {
       this.plugin.once('connect', () => {
         done()
       })
-      this.plugin.connect().catch(handle)
+      this.plugin.connect()
+        .then((result) => {
+          assert.isNull(result, 'connect should return a promise to null')
+        })
+        .catch(handle)
     })
 
     it('returns "true" from isConnected after connect', function (done) {
@@ -85,6 +89,10 @@ describe('Plugin setup', function () {
 
       this.plugin.once('connect', () => {
         this.plugin.disconnect()
+          .then((result) => {
+            assert.isNull(result, 'disconnect should return a promise to null')
+          })
+          .catch(handle)
       })
 
       this.plugin.connect()

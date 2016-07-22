@@ -19,9 +19,12 @@ describe('Plugin transfers (optimistic)', function () {
   beforeEach(function * () {
     this.pluginA = new Plugin(optsA)
     this.pluginB = new Plugin(optsB)
-      
-    yield this.pluginA.connect()
-    yield this.pluginB.connect()
+
+    this.pluginA.connect()
+    yield new Promise(resolve => this.pluginA.once('connect', resolve))
+
+    this.pluginB.connect()
+    yield new Promise(resolve => this.pluginB.once('connect', resolve))
 
     assert.isTrue(this.pluginA.isConnected())
     assert.isTrue(this.pluginB.isConnected())
@@ -35,6 +38,10 @@ describe('Plugin transfers (optimistic)', function () {
   })
 
   describe('send', function () {
+    it('should be a function', function () {
+      assert.isFunction(this.pluginA.send)
+    })
+
     it('should send an optimistic transfer with 0 amount', function (done) {
       const id = uuid()
 
@@ -51,7 +58,11 @@ describe('Plugin transfers (optimistic)', function () {
         executionCondition: undefined,
         cancellationCondition: undefined,
         expiresAt: undefined
-      }, transferA)).catch(handle)
+      }, transferA))
+        .then((result) => {
+          assert.isNull(result, 'send should resolve to null')
+        })
+        .catch(handle)
     })
 
     it('should send an optimistic transfer with amount 1', function (done) {
@@ -167,6 +178,10 @@ describe('Plugin transfers (optimistic)', function () {
   })
 
   describe('replyToTransfer', function (done) {
+    it('should be a function', function () {
+      assert.isFunction(this.pluginA.replyToTransfer)
+    })
+
     it('should reply to a successful transfer', function (done) {
       const id = uuid()
 
@@ -178,6 +193,9 @@ describe('Plugin transfers (optimistic)', function () {
         
         assert.equal(transfer.id, id)
         this.pluginB.replyToTransfer(transfer.id, new Buffer('hello'))
+          .then((result) => {
+            assert.isNull(result, 'replyToTransfer should resolve to null')
+          })
       })
 
       this.pluginA.send(Object.assign({

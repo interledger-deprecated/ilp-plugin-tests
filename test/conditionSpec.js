@@ -25,8 +25,11 @@ describe('Plugin transfers (universal)', function () {
     this.pluginA = new Plugin(optsA)
     this.pluginB = new Plugin(optsB)
       
-    yield this.pluginA.connect()
-    yield this.pluginB.connect()
+    this.pluginA.connect()
+    yield new Promise(resolve => this.pluginA.once('connect', resolve))
+
+    this.pluginB.connect()
+    yield new Promise(resolve => this.pluginB.once('connect', resolve))
 
     assert.isTrue(this.pluginA.isConnected())
     assert.isTrue(this.pluginB.isConnected())
@@ -59,6 +62,9 @@ describe('Plugin transfers (universal)', function () {
         })
 
         this.pluginB.fulfillCondition(id, fulfillment)
+          .then((result) => {
+            assert.isNull(result, 'fulfillCondition should resolve to null')
+          })
       })
 
       this.pluginA.send(Object.assign({
