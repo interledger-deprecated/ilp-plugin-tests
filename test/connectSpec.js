@@ -112,13 +112,12 @@ describe('Plugin setup', function () {
 
     it('returns "false" from isConnected after disconnect', function (done) {
       this.plugin.once('connect', () => {
+        this.plugin.once('disconnect', () => {
+          assert.isFalse(this.plugin.isConnected())
+          done()
+        })
         this.plugin.disconnect()
-          .then((result) => {
-            assert.isFalse(this.plugin.isConnected())
-            done()
-          })
       })
-
       this.plugin.connect()
     })
 
