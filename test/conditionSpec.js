@@ -43,6 +43,10 @@ describe('Plugin transfers (universal)', function () {
     const condition = 'cc:0:3:47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU:0'
     const fulfillment = 'cf:0:'
 
+    it('should be a function', function () {
+      assert.isFunction(this.pluginA.fulfillCondition)
+    })
+
     it('should fulfill transfer with condition and expiry', function (done) {
       const id = uuid()
 
