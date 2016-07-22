@@ -31,7 +31,7 @@ describe.only('Plugin transfers (universal)', function () {
     assert.isTrue(this.pluginA.isConnected())
     assert.isTrue(this.pluginB.isConnected())
     
-    this.timeout = this.timeout + timeout
+    this.timeout += timeout
   })
 
   afterEach(function * () {
@@ -39,7 +39,7 @@ describe.only('Plugin transfers (universal)', function () {
     if (this.pluginB.isConnected()) yield this.pluginB.disconnect()
   })
 
-  describe('send', function () {
+  describe('fulfillCondition', function () {
     const condition = 'cc:0:3:47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU:0'
     const fulfillment = 'cf:0:'
 
@@ -109,32 +109,13 @@ describe.only('Plugin transfers (universal)', function () {
       }, transferA))
     })
 
-    it.skip('should notify the receiver of a timeout', function (done) {
-      const id = uuid()
-
-      this.pluginB.once('reject', (transfer) => {
-        assert.equal(transfer.id, id)
-        done()
-      })
-
-      this.pluginA.send(Object.assign({
-        id: id,
-        amount: '0.0',
-        data: new Buffer(''),
-        noteToSelf: new Buffer(''),
-        executionCondition: condition,
-        expiresAt: makeExpiry(0)
-      }, transferA))
-    })
-
-
     it('should not fulfill with invalid fulfillment', function * () {
       const id = uuid()
 
       const fulfillStub = sinon.stub()
       this.pluginA.on('fulfill_execution_condition', fulfillStub)
 
-      const promise =  new Promise(resolve => this.pluginA.once('reject', resolve))
+      const promise = new Promise(resolve => this.pluginA.once('reject', resolve))
 
       yield this.pluginA.send(Object.assign({
         id: id,
@@ -153,6 +134,81 @@ describe.only('Plugin transfers (universal)', function () {
       assert.equal(transfer.id, id)
 
       sinon.assert.notCalled(fulfillStub)      
+    })
+
+    it('should not fulfill a transfer twice', function * () {
+      const id = uuid()
+
+      const fulfillStub = sinon.stub()
+      this.pluginA.on('fulfill_execution_condition', fulfillStub)
+
+      yield this.pluginA.send(Object.assign({
+        id: id,
+        amount: '1.0',
+        data: new Buffer(''),
+        noteToSelf: new Buffer(''),
+        executionCondition: condition,
+        expiresAt: makeExpiry(timeout)
+      }, transferA))
+
+      try {
+        yield this.pluginA.fulfillCondition(id, fulfillment)
+        yield this.pluginA.fulfillCondition(id, fulfillment)
+      } catch (err) {}
+
+      sinon.assert.calledOnce(fulfillStub)
+    })
+
+    it('should fulfill a transfer after being unsuccessful', function * () {
+      const id = uuid()
+
+      const fulfillStub = sinon.stub()
+      this.pluginA.on('fulfill_execution_condition', fulfillStub)
+
+      yield this.pluginA.send(Object.assign({
+        id: id,
+        amount: '1.0',
+        data: new Buffer(''),
+        noteToSelf: new Buffer(''),
+        executionCondition: condition,
+        expiresAt: makeExpiry(timeout)
+      }, transferA))
+
+      try {
+        yield this.pluginA.fulfillCondition(id, 'garbage')
+      } catch (err) {}
+      try {
+        yield this.pluginA.fulfillCondition(id, fulfillment)
+      } catch (err) {}
+
+      sinon.assert.calledOnce(fulfillStub)
+    })
+
+    it('should not fulfill a transfer with a non-matching id', function * () {
+      const id = uuid()
+      const fakeId = uuid()
+
+      const fulfillStub = sinon.stub()
+      this.pluginA.on('fulfill_execution_condition', fulfillStub)
+
+      const promise = new Promise(resolve => this.pluginA.once('reject', resolve))
+
+      yield this.pluginA.send(Object.assign({
+        id: id,
+        amount: '1.0',
+        data: new Buffer(''),
+        noteToSelf: new Buffer(''),
+        executionCondition: condition,
+        expiresAt: makeExpiry(timeout)
+      }, transferA))
+
+      try {
+        yield this.pluginA.fulfillCondition(fakeId, fulfillment)
+      } catch (err) {}
+
+      yield promise
+
+      sinon.assert.notCalled(fulfillStub)
     })
   })
 })
