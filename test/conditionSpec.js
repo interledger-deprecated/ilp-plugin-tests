@@ -55,9 +55,11 @@ describe('Plugin transfers (universal)', function () {
 
       this.pluginB.once('incoming_prepare', (transfer) => {
         assert.equal(transfer.id, id)
+        assert.equal(transfer.ledger, 'test.nerd.')
 
         this.pluginA.once('outgoing_fulfill', (transfer) => {
           assert.equal(transfer.id, id)
+          assert.equal(transfer.ledger, 'test.nerd.')
           done()
         })
 
@@ -82,9 +84,11 @@ describe('Plugin transfers (universal)', function () {
 
       this.pluginB.once('incoming_prepare', (transfer) => {
         assert.equal(transfer.id, id)
+        assert.equal(transfer.ledger, 'test.nerd.')
 
         this.pluginB.once('incoming_fulfill', (transfer) => {
           assert.equal(transfer.id, id)
+          assert.equal(transfer.ledger, 'test.nerd.')
           done()
         })
 
@@ -106,6 +110,7 @@ describe('Plugin transfers (universal)', function () {
 
       this.pluginA.once('outgoing_cancel', (transfer) => {
         assert.equal(transfer.id, id)
+        assert.equal(transfer.ledger, 'test.nerd.')
         done()
       })
 
