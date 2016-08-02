@@ -53,10 +53,10 @@ describe('Plugin transfers (universal)', function () {
     it('should fulfill transfer with condition and expiry', function (done) {
       const id = uuid()
 
-      this.pluginB.once('receive', (transfer) => {
+      this.pluginB.once('incoming_prepare', (transfer) => {
         assert.equal(transfer.id, id)
 
-        this.pluginA.once('fulfill_execution_condition', (transfer) => {
+        this.pluginA.once('outgoing_fulfill', (transfer) => {
           assert.equal(transfer.id, id)
           done()
         })
@@ -80,10 +80,10 @@ describe('Plugin transfers (universal)', function () {
     it('should notify the receiver of a fulfillment', function (done) {
       const id = uuid()
 
-      this.pluginB.once('receive', (transfer) => {
+      this.pluginB.once('incoming_prepare', (transfer) => {
         assert.equal(transfer.id, id)
 
-        this.pluginB.once('fulfill_execution_condition', (transfer) => {
+        this.pluginB.once('incoming_fulfill', (transfer) => {
           assert.equal(transfer.id, id)
           done()
         })
@@ -104,7 +104,7 @@ describe('Plugin transfers (universal)', function () {
     it('should time out a transfer', function (done) {
       const id = uuid()
 
-      this.pluginA.once('reject', (transfer) => {
+      this.pluginA.once('outgoing_cancel', (transfer) => {
         assert.equal(transfer.id, id)
         done()
       })
@@ -123,9 +123,11 @@ describe('Plugin transfers (universal)', function () {
       const id = uuid()
 
       const fulfillStub = sinon.stub()
-      this.pluginA.on('fulfill_execution_condition', fulfillStub)
+      this.pluginA.on('outgoing_fulfill', fulfillStub)
 
-      const promise = new Promise(resolve => this.pluginA.once('reject', resolve))
+      const promise = new Promise(resolve =>
+        this.pluginA.once('outgoing_cancel', resolve)
+      )
 
       yield this.pluginA.send(Object.assign({
         id: id,
@@ -150,7 +152,7 @@ describe('Plugin transfers (universal)', function () {
       const id = uuid()
 
       const fulfillStub = sinon.stub()
-      this.pluginA.on('fulfill_execution_condition', fulfillStub)
+      this.pluginA.on('outgoing_fulfill', fulfillStub)
 
       yield this.pluginA.send(Object.assign({
         id: id,
@@ -173,7 +175,7 @@ describe('Plugin transfers (universal)', function () {
       const id = uuid()
 
       const fulfillStub = sinon.stub()
-      this.pluginA.on('fulfill_execution_condition', fulfillStub)
+      this.pluginA.on('outgoing_fulfill', fulfillStub)
 
       yield this.pluginA.send(Object.assign({
         id: id,
@@ -199,9 +201,11 @@ describe('Plugin transfers (universal)', function () {
       const fakeId = uuid()
 
       const fulfillStub = sinon.stub()
-      this.pluginA.on('fulfill_execution_condition', fulfillStub)
+      this.pluginA.on('outgoing_fulfill', fulfillStub)
 
-      const promise = new Promise(resolve => this.pluginA.once('reject', resolve))
+      const promise = new Promise(resolve =>
+        this.pluginA.once('outgoing_cancel', resolve)
+      )
 
       yield this.pluginA.send(Object.assign({
         id: id,
