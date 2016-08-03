@@ -14,6 +14,11 @@ store.del = (k) => { s[k] = undefined; return Promise.resolve(null) }
 const crypto = require('crypto')
 const token = crypto.randomBytes(32).toString('hex')
 
+const mock =
+  require('../node_modules/ilp-plugin-virtual/test/helpers/mockConnection')
+const MockConnection = mock.MockConnection
+const MockChannels = mock.MockChannels
+
 // These objects specify the configs of different
 // plugins. There must be 2, so that they can send
 // transfers to one another.
@@ -29,7 +34,9 @@ exports.options = [
         "limit": "0",
         "balance": "100",
         "token": token,
-        "secret": "not used yet",
+        "mockConnection": MockConnection,
+        "mockChannels": MockChannels,
+        "secret": "not used yet"
       },
       "store": store
     },
@@ -46,6 +53,8 @@ exports.options = [
       'auth': {
         "account": "noob",
         "host": "ws://broker.hivemq.com:8000",
+        "mockConnection": MockConnection,
+        "mockChannels": MockChannels,
         "token": token
       }
     },
