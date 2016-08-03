@@ -29,6 +29,7 @@ exports.options = [
     // constructor.
     'pluginOptions': {
       "auth": {
+        "prefix": "test.nerd.",
         "account": "nerd",
         "host": "ws://broker.hivemq.com:8000",
         "limit": "0",
@@ -51,6 +52,7 @@ exports.options = [
   {
     'pluginOptions': {
       'auth': {
+        "prefix": "test.noob.",
         "account": "noob",
         "host": "ws://broker.hivemq.com:8000",
         "mockConnection": MockConnection,
