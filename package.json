@@ -1,6 +1,6 @@
 {
   "name": "ilp-plugin-tests",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "Test suite for ledger plugins",
   "main": "index.js",
   "scripts": {
