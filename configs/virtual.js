@@ -28,18 +28,16 @@ exports.options = [
     // These are the PluginOptions passed into the plugin's
     // constructor.
     'pluginOptions': {
-      "auth": {
-        "prefix": "test.nerd.",
-        "account": "nerd",
-        "host": "ws://broker.hivemq.com:8000",
-        "limit": "0",
-        "balance": "100",
-        "token": token,
-        "mockConnection": MockConnection,
-        "mockChannels": MockChannels,
-        "secret": "not used yet"
-      },
-      "store": store
+      "prefix": "test.nerd.",
+      "account": "nerd",
+      "host": "ws://broker.hivemq.com:8000",
+      "limit": "0",
+      "balance": "100",
+      "token": token,
+      "mockConnection": MockConnection,
+      "mockChannels": MockChannels,
+      "secret": "not used yet",
+      "_store": store
     },
     // These objects are merged with transfers originating from
     // their respective plugins. Should specify the other plugin's
@@ -51,14 +49,12 @@ exports.options = [
   // options for the second plugin
   {
     'pluginOptions': {
-      'auth': {
-        "prefix": "test.noob.",
-        "account": "noob",
-        "host": "ws://broker.hivemq.com:8000",
-        "mockConnection": MockConnection,
-        "mockChannels": MockChannels,
-        "token": token
-      }
+      "prefix": "test.noob.",
+      "account": "noob",
+      "host": "ws://broker.hivemq.com:8000",
+      "mockConnection": MockConnection,
+      "mockChannels": MockChannels,
+      "token": token
     },
     'transfer': {
       'account': 'nerd'
