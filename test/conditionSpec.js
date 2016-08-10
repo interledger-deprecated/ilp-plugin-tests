@@ -95,6 +95,7 @@ describe('Plugin transfers (universal)', function () {
         })
 
         this.pluginB.fulfillCondition(id, fulfillment)
+          .catch((e) => { throw e })
       })
 
       this.pluginA.send(Object.assign({
@@ -106,6 +107,7 @@ describe('Plugin transfers (universal)', function () {
         expiresAt: makeExpiry(timeout)
       }, transferA))
     })
+
 
     it('should time out a transfer', function (done) {
       const id = uuid()
@@ -230,6 +232,62 @@ describe('Plugin transfers (universal)', function () {
       yield promise
 
       sinon.assert.notCalled(fulfillStub)
+    })
+  })
+
+  describe('rejectIncomingTransfer', () => {
+    const condition = 'cc:0:3:47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU:0'
+    const fulfillment = 'cf:0:'
+
+    it('should be a function', function () {
+      assert.isFunction(this.pluginA.rejectIncomingTransfer)
+    })
+
+    it('should reject a transfer with a condition', function (done) {
+      const id = uuid()
+
+      this.pluginB.once('incoming_prepare', (transfer) => {
+        assert.equal(transfer.id, id)
+        assert.equal(transfer.ledger, 'test.nerd.')
+
+        this.pluginA.once('outgoing_reject', (transfer) => {
+          assert.equal(transfer.id, id)
+          assert.equal(transfer.ledger, 'test.nerd.')
+          done()
+        })
+
+        this.pluginB.rejectIncomingTransfer(id)
+      })
+
+      this.pluginA.send(Object.assign({
+        id: id,
+        amount: '1.0',
+        data: new Buffer(''),
+        noteToSelf: new Buffer(''),
+        executionCondition: condition,
+        expiresAt: makeExpiry(timeout)
+      }, transferA))
+    })
+
+    it('should not reject transfer with condition as sender', function (done) {
+      const id = uuid()
+
+      this.pluginB.once('incoming_prepare', (transfer) => {
+        assert.equal(transfer.id, id)
+        assert.equal(transfer.ledger, 'test.nerd.')
+
+        this.pluginA.rejectIncomingTransfer(id)
+          .catch((e) => { done() })
+      })
+
+      this.pluginA.send(Object.assign({
+        id: id,
+        amount: '1.0',
+        data: new Buffer(''),
+        noteToSelf: new Buffer(''),
+        executionCondition: condition,
+        expiresAt: makeExpiry(timeout)
+      }, transferA))
     })
   })
 })
