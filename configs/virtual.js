@@ -1,3 +1,14 @@
+// mock require the network connection
+const mockRequire = require('mock-require')
+const mock =
+  require('../node_modules/ilp-plugin-virtual/test/helpers/mockConnection')
+const MockConnection = mock.MockConnection
+const MockChannels = mock.MockChannels
+mockRequire(
+  '../node_modules/ilp-plugin-virtual/src/model/connection',
+  MockConnection
+)
+
 // This field contains the constructor for a plugin
 exports.plugin = require('ilp-plugin-virtual')
 
@@ -14,11 +25,6 @@ store.del = (k) => { s[k] = undefined; return Promise.resolve(null) }
 const crypto = require('crypto')
 const token = crypto.randomBytes(32).toString('hex')
 
-const mock =
-  require('../node_modules/ilp-plugin-virtual/test/helpers/mockConnection')
-const MockConnection = mock.MockConnection
-const MockChannels = mock.MockChannels
-
 // These objects specify the configs of different
 // plugins. There must be 2, so that they can send
 // transfers to one another.
@@ -34,7 +40,6 @@ exports.options = [
       "limit": "0",
       "balance": "100",
       "token": token,
-      "mockConnection": MockConnection,
       "mockChannels": MockChannels,
       "secret": "not used yet",
       "_store": store
