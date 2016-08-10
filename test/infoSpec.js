@@ -64,10 +64,15 @@ describe('Plugin info', function () {
     })
   })
 
-  it('should disconnect again', function (done) {
-    this.plugin.once('disconnect', () => {
-      done()
+  describe('getPrefix', function () {
+    it('should be a function', function () {
+      assert.isFunction(this.plugin.getPrefix)
     })
-    this.plugin.disconnect()
+
+    it('should return a ilp ledger address', function * () {
+      const prefix = yield this.plugin.getPrefix()
+      assert.match(prefix, /^[a-zA-Z0-9._~-]+\.$/,
+        'should match ilp address pattern and end in "."')
+    })
   })
 })
