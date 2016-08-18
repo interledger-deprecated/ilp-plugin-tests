@@ -1,0 +1,6 @@
+extends: standard
+globals:
+  it: true
+  describe: true
+  beforeEach: true
+  afterEach: true
