@@ -38,6 +38,7 @@ exports.options = [
       "account": "nerd",
       "host": "ws://broker.hivemq.com:8000",
       "limit": "0",
+      "max": "1000",
       "balance": "100",
       "token": token,
       "mockChannels": MockChannels,
