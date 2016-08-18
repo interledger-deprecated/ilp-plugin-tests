@@ -4,27 +4,23 @@ const assert = require('chai').assert
 const testPlugin = require('..')
 const sinon = require('sinon')
 const uuid = require('uuid4')
-const cc = require('five-bells-condition')
 
 const Plugin = testPlugin.plugin
 
 const optsA = testPlugin.options[0].pluginOptions
 const optsB = testPlugin.options[1].pluginOptions
 const transferA = testPlugin.options[0].transfer
-const transferB = testPlugin.options[1].transfer
 const timeout = testPlugin.timeout
 
-const handle = (err) => console.error(err)
 const makeExpiry = (t) => {
   return (new Date((new Date()).getTime() + t * 1000)).toISOString()
 }
 
 describe('Plugin transfers (universal)', function () {
-  
   beforeEach(function * () {
     this.pluginA = new Plugin(optsA)
     this.pluginB = new Plugin(optsB)
-      
+
     const pA = new Promise(resolve => this.pluginA.once('connect', resolve))
     this.pluginA.connect()
     yield pA
@@ -35,7 +31,7 @@ describe('Plugin transfers (universal)', function () {
 
     assert.isTrue(this.pluginA.isConnected())
     assert.isTrue(this.pluginB.isConnected())
-    
+
     this.timeout += timeout
   })
 
@@ -95,7 +91,7 @@ describe('Plugin transfers (universal)', function () {
         })
 
         this.pluginB.fulfillCondition(id, fulfillment)
-          .catch((e) => { throw e })
+          .catch(done)
       })
 
       this.pluginA.send(Object.assign({
@@ -107,7 +103,6 @@ describe('Plugin transfers (universal)', function () {
         expiresAt: makeExpiry(timeout)
       }, transferA))
     })
-
 
     it('should time out a transfer', function (done) {
       const id = uuid()
@@ -154,7 +149,7 @@ describe('Plugin transfers (universal)', function () {
       const transfer = yield promise
       assert.equal(transfer.id, id)
 
-      sinon.assert.notCalled(fulfillStub)      
+      sinon.assert.notCalled(fulfillStub)
     })
 
     it('should not fulfill a transfer twice', function * () {
@@ -237,7 +232,6 @@ describe('Plugin transfers (universal)', function () {
 
   describe('rejectIncomingTransfer', () => {
     const condition = 'cc:0:3:47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU:0'
-    const fulfillment = 'cf:0:'
 
     it('should be a function', function () {
       assert.isFunction(this.pluginA.rejectIncomingTransfer)
@@ -277,7 +271,7 @@ describe('Plugin transfers (universal)', function () {
         assert.equal(transfer.ledger, 'test.nerd.')
 
         this.pluginA.rejectIncomingTransfer(id)
-          .catch((e) => { done() })
+          .catch(() => { done() })
       })
 
       this.pluginA.send(Object.assign({

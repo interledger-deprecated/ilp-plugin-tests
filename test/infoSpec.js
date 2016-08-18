@@ -8,7 +8,6 @@ const opts = testPlugin.options[0].pluginOptions
 const timeout = testPlugin.timeout
 
 describe('Plugin info', function () {
-  
   beforeEach(function * () {
     this.plugin = new Plugin(opts)
     assert.isObject(this.plugin)
@@ -54,7 +53,7 @@ describe('Plugin info', function () {
     it('should be a function', function () {
       assert.isFunction(this.plugin.getConnectors)
     })
-  
+
     it('should return promise to array of strings', function * () {
       const p = yield this.plugin.getConnectors()
       assert.isArray(p)

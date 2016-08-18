@@ -9,13 +9,9 @@ const Plugin = testPlugin.plugin
 const optsA = testPlugin.options[0].pluginOptions
 const optsB = testPlugin.options[1].pluginOptions
 const transferA = testPlugin.options[0].transfer
-const transferB = testPlugin.options[1].transfer
 const timeout = testPlugin.timeout
 
-const handle = (err) => console.error(err)
-
 describe('Plugin transfers (optimistic)', function () {
-
   beforeEach(function * () {
     this.pluginA = new Plugin(optsA)
     this.pluginB = new Plugin(optsB)
@@ -64,7 +60,7 @@ describe('Plugin transfers (optimistic)', function () {
         .then((result) => {
           assert.isNull(result, 'send should resolve to null')
         })
-        .catch(handle)
+        .catch(done)
     })
 
     it('should send an optimistic transfer with amount 1', function (done) {
@@ -83,9 +79,9 @@ describe('Plugin transfers (optimistic)', function () {
         executionCondition: undefined,
         cancellationCondition: undefined,
         expiresAt: undefined
-      }, transferA)).catch(handle)
+      }, transferA)).catch(done)
     })
-    
+
     it('should reject optimistic transfer with repeat id', function (done) {
       const id = uuid()
 
@@ -113,7 +109,7 @@ describe('Plugin transfers (optimistic)', function () {
         executionCondition: undefined,
         cancellationCondition: undefined,
         expiresAt: undefined
-      }, transferA)).catch(handle)
+      }, transferA)).catch(done)
     })
 
     it('should reject transfer with repeat id (from receiver)', function (done) {
@@ -143,7 +139,7 @@ describe('Plugin transfers (optimistic)', function () {
         executionCondition: undefined,
         cancellationCondition: undefined,
         expiresAt: undefined
-      }, transferA)).catch(handle)
+      }, transferA)).catch(done)
     })
 
     it('should reject optimistic transfer with amount -1', function (done) {
@@ -210,7 +206,7 @@ describe('Plugin transfers (optimistic)', function () {
           assert.equal(transfer.id, id)
           done()
         })
-        
+
         assert.equal(transfer.id, id)
         this.pluginB.replyToTransfer(transfer.id, new Buffer('hello'))
           .then((result) => {
@@ -226,7 +222,7 @@ describe('Plugin transfers (optimistic)', function () {
         executionCondition: undefined,
         cancellationCondition: undefined,
         expiresAt: undefined
-      }, transferA)).catch(handle)
+      }, transferA)).catch(done)
     })
   })
 })

@@ -7,8 +7,6 @@ const Plugin = testPlugin.plugin
 const opts = testPlugin.options[0].pluginOptions
 const timeout = testPlugin.timeout
 
-const handle = (err) => console.error(err)
-
 describe('Plugin setup', function () {
   beforeEach(function () {
     this.plugin = new Plugin(opts)
@@ -47,7 +45,7 @@ describe('Plugin setup', function () {
         .then((result) => {
           assert.isNull(result, 'connect should return a promise to null')
         })
-        .catch(handle)
+        .catch(done)
     })
 
     it('returns "true" from isConnected after connect', function (done) {
@@ -55,9 +53,9 @@ describe('Plugin setup', function () {
         assert.isTrue(this.plugin.isConnected())
         done()
       })
-      this.plugin.connect().catch(handle)
+      this.plugin.connect().catch(done)
     })
-  
+
     it('should resolve to null', function (done) {
       this.plugin.connect()
         .then((result) => {
@@ -71,7 +69,7 @@ describe('Plugin setup', function () {
         assert.isTrue(this.plugin.isConnected())
         done()
       })
-      
+
       this.plugin.connect()
       this.plugin.connect()
     })
@@ -92,7 +90,7 @@ describe('Plugin setup', function () {
           .then((result) => {
             assert.isNull(result, 'disconnect should return a promise to null')
           })
-          .catch(handle)
+          .catch(done)
       })
 
       this.plugin.connect()
