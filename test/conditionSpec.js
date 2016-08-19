@@ -230,6 +230,54 @@ describe('Plugin transfers (universal)', function () {
     })
   })
 
+  describe('getFulfillment', () => {
+    const condition = 'cc:0:3:47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU:0'
+    const fulfillment = 'cf:0:'
+
+    it('should get the fulfillment of a completed transfer', function (done) {
+      const id = uuid()
+
+      this.pluginB.once('incoming_prepare', (transfer) => {
+        assert.equal(transfer.id, id)
+        assert.equal(transfer.ledger, 'test.nerd.')
+
+        this.pluginA.once('outgoing_fulfill', (transfer) => {
+          assert.equal(transfer.id, id)
+          assert.equal(transfer.ledger, 'test.nerd.')
+
+          this.pluginA.getFulfillment(transfer.id)
+            .then((f) => {
+              assert.equal(f, fulfillment)
+              done()
+            })
+        })
+
+        this.pluginB.fulfillCondition(id, fulfillment)
+          .then((result) => {
+            assert.isNull(result, 'fulfillCondition should resolve to null')
+          })
+      })
+
+      this.pluginA.send(Object.assign({
+        id: id,
+        amount: '1.0',
+        data: new Buffer(''),
+        noteToSelf: new Buffer(''),
+        executionCondition: condition,
+        expiresAt: makeExpiry(timeout)
+      }, transferA))
+    })
+
+    it('should reject for of a nonexistant transfer', function (done) {
+      const id = uuid()
+
+      this.pluginA.getFulfillment(id)
+        .catch(() => {
+          done()
+        })
+    })
+  })
+
   describe('rejectIncomingTransfer', () => {
     const condition = 'cc:0:3:47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU:0'
 

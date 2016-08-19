@@ -34,6 +34,7 @@ exports.options = [
     // These are the PluginOptions passed into the plugin's
     // constructor.
     'pluginOptions': {
+      'connector': 'http://localhost:4000',
       'prefix': 'test.nerd.',
       'account': 'nerd',
       'host': 'ws://broker.hivemq.com:8000',
