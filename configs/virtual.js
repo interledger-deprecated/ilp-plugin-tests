@@ -1,7 +1,7 @@
 // mock require the network connection
 const mockRequire = require('mock-require')
 const mock =
-  require('../node_modules/ilp-plugin-virtual/test/helpers/mockConnection')
+  require('../node_modules/ilp-plugin-virtual/test/mocks/mockConnection')
 const MockConnection = mock.MockConnection
 const MockChannels = mock.MockChannels
 mockRequire(
@@ -37,9 +37,11 @@ exports.options = [
       'prefix': 'test.nerd.',
       'account': 'nerd',
       'host': 'ws://broker.hivemq.com:8000',
-      'limit': '0',
-      'max': '1000',
-      'balance': '100',
+      'minBalance': '0',
+      'maxBalance': '1000',
+      'initialBalance': '100',
+      'settleIfUnder': '0',
+      'settleIfOver': '1000',
       'token': token,
       'mockChannels': MockChannels,
       'secret': 'not used yet',
