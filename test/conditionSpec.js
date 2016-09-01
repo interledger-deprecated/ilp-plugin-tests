@@ -142,9 +142,40 @@ describe('Plugin transfers (universal)', function () {
         expiresAt: makeExpiry(timeout)
       }, transferA))
 
-      try {
-        yield this.pluginA.fulfillCondition(id, 'garbage')
-      } catch (err) {}
+      yield this.pluginA.fulfillCondition(id, 'garbage')
+        .catch((e) => {
+          assert.equal(e.name, 'InvalidFieldsError')
+        })
+
+      const transfer = yield promise
+      assert.equal(transfer.id, id)
+
+      sinon.assert.notCalled(fulfillStub)
+    })
+
+    it('should not fulfill with incorrect fulfillment', function * () {
+      const id = uuid()
+
+      const fulfillStub = sinon.stub()
+      this.pluginA.on('outgoing_fulfill', fulfillStub)
+
+      const promise = new Promise(resolve =>
+        this.pluginA.once('outgoing_cancel', resolve)
+      )
+
+      yield this.pluginA.send(Object.assign({
+        id: id,
+        amount: '1.0',
+        data: new Buffer(''),
+        noteToSelf: new Buffer(''),
+        executionCondition: condition,
+        expiresAt: makeExpiry(timeout)
+      }, transferA))
+
+      yield this.pluginA.fulfillCondition(id, 'cf:0:abc')
+        .catch((e) => {
+          assert.equal(e.name, 'NotAcceptedError')
+        })
 
       const transfer = yield promise
       assert.equal(transfer.id, id)
@@ -167,10 +198,11 @@ describe('Plugin transfers (universal)', function () {
         expiresAt: makeExpiry(timeout)
       }, transferA))
 
-      try {
-        yield this.pluginA.fulfillCondition(id, fulfillment)
-        yield this.pluginA.fulfillCondition(id, fulfillment)
-      } catch (err) {}
+      yield this.pluginA.fulfillCondition(id, fulfillment)
+      yield this.pluginA.fulfillCondition(id, fulfillment)
+        .catch((e) => {
+          assert.equal(e.name, 'RepeatError')
+        })
 
       sinon.assert.calledOnce(fulfillStub)
     })
@@ -190,12 +222,12 @@ describe('Plugin transfers (universal)', function () {
         expiresAt: makeExpiry(timeout)
       }, transferA))
 
-      try {
-        yield this.pluginA.fulfillCondition(id, 'garbage')
-      } catch (err) {}
-      try {
-        yield this.pluginA.fulfillCondition(id, fulfillment)
-      } catch (err) {}
+      yield this.pluginA.fulfillCondition(id, 'garbage')
+        .catch((e) => {
+          assert.equal(e.name, 'InvalidFieldsError')
+        })
+
+      yield this.pluginA.fulfillCondition(id, fulfillment)
 
       sinon.assert.calledOnce(fulfillStub)
     })
@@ -220,9 +252,10 @@ describe('Plugin transfers (universal)', function () {
         expiresAt: makeExpiry(timeout)
       }, transferA))
 
-      try {
-        yield this.pluginA.fulfillCondition(fakeId, fulfillment)
-      } catch (err) {}
+      yield this.pluginA.fulfillCondition(fakeId, fulfillment)
+        .catch((e) => {
+          assert.equal(e.name, 'TransferNotFoundError')          
+        })
 
       yield promise
 
@@ -272,9 +305,35 @@ describe('Plugin transfers (universal)', function () {
       const id = uuid()
 
       this.pluginA.getFulfillment(id)
-        .catch(() => {
+        .catch((e) => {
+          assert.equal(e.name, 'TransferNotFoundError')
           done()
         })
+    })
+
+    it('should reject for of an incomplete transfer', function (done) {
+      const id = uuid()
+
+
+      this.pluginB.once('incoming_prepare', (transfer) => {
+        assert.equal(transfer.id, id)
+        assert.equal(transfer.ledger, 'test.nerd.')
+
+        this.pluginA.getFulfillment(id)
+          .catch((e) => {
+            assert.equal(e.name, 'MissingFulfillmentError')
+            done()
+          })
+      })
+
+      this.pluginA.send(Object.assign({
+        id: id,
+        amount: '1.0',
+        data: new Buffer(''),
+        noteToSelf: new Buffer(''),
+        executionCondition: condition,
+        expiresAt: makeExpiry(timeout)
+      }, transferA))
     })
   })
 
@@ -311,15 +370,26 @@ describe('Plugin transfers (universal)', function () {
       }, transferA))
     })
 
-    it('should not reject transfer with condition as sender', function (done) {
+    it('should not reject a transfer twice', function (done) {
       const id = uuid()
 
       this.pluginB.once('incoming_prepare', (transfer) => {
         assert.equal(transfer.id, id)
         assert.equal(transfer.ledger, 'test.nerd.')
 
-        this.pluginA.rejectIncomingTransfer(id)
-          .catch(() => { done() })
+        this.pluginA.once('outgoing_reject', (transfer) => {
+          assert.equal(transfer.id, id)
+          assert.equal(transfer.ledger, 'test.nerd.')
+
+          this.pluginB.rejectIncomingTransfer(id)
+            .catch((e) => {
+              assert.equal(e.name, 'RepeatError')
+              done()
+            }).catch(done)
+        })
+
+        this.pluginB.rejectIncomingTransfer(id)
+          .catch(done)
       })
 
       this.pluginA.send(Object.assign({
@@ -329,7 +399,39 @@ describe('Plugin transfers (universal)', function () {
         noteToSelf: new Buffer(''),
         executionCondition: condition,
         expiresAt: makeExpiry(timeout)
-      }, transferA))
+      }, transferA)).catch(done)
+    })
+
+    it('should not reject transfer with condition as sender', function (done) {
+      const id = uuid()
+
+      this.pluginB.once('incoming_prepare', (transfer) => {
+        assert.equal(transfer.id, id)
+        assert.equal(transfer.ledger, 'test.nerd.')
+
+        this.pluginA.rejectIncomingTransfer(id)
+          .catch((e) => {
+            assert.equal(e.name, 'NotAcceptedError')
+            done()
+          }).catch(done)
+      })
+
+      this.pluginA.send(Object.assign({
+        id: id,
+        amount: '1.0',
+        data: new Buffer(''),
+        noteToSelf: new Buffer(''),
+        executionCondition: condition,
+        expiresAt: makeExpiry(timeout)
+      }, transferA)).catch(done)
+    })
+
+    it('should not reject nonexistant transfer', function (done) {
+      this.pluginA.rejectIncomingTransfer(uuid())
+        .catch((e) => {
+          assert.equal(e.name, 'TransferNotFoundError')
+          done()
+        })
     })
   })
 })

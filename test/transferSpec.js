@@ -82,6 +82,50 @@ describe('Plugin transfers (optimistic)', function () {
       }, transferA)).catch(done)
     })
 
+    it('should emit a transfer with correct fields with `outgoing_transfer`', function (done) {
+      const id = uuid()
+
+      this.pluginA.once('outgoing_transfer', (transfer) => {
+        console.log(transfer)
+        assert.equal(transfer.id, id)
+        assert.isOk(transfer.amount)
+        assert.isOk(transfer.account)
+        done()
+      })
+
+      this.pluginA.send(Object.assign({
+        id: id,
+        amount: '1.0',
+        data: new Buffer(''),
+        noteToSelf: new Buffer(''),
+        executionCondition: undefined,
+        cancellationCondition: undefined,
+        expiresAt: undefined
+      }, transferA)).catch(done)
+    })
+
+    it('should emit a transfer with correct fields with `incoming_transfer`', function (done) {
+      const id = uuid()
+
+      this.pluginB.once('incoming_transfer', (transfer) => {
+        console.log(transfer)
+        assert.equal(transfer.id, id)
+        assert.isOk(transfer.amount)
+        assert.isOk(transfer.account)
+        done()
+      })
+
+      this.pluginA.send(Object.assign({
+        id: id,
+        amount: '1.0',
+        data: new Buffer(''),
+        noteToSelf: new Buffer(''),
+        executionCondition: undefined,
+        cancellationCondition: undefined,
+        expiresAt: undefined
+      }, transferA)).catch(done)
+    })
+
     it('should reject optimistic transfer with repeat id', function (done) {
       const id = uuid()
 
@@ -126,7 +170,8 @@ describe('Plugin transfers (optimistic)', function () {
           executionCondition: undefined,
           cancellationCondition: undefined,
           expiresAt: undefined
-        }, transferA)).catch(() => {
+        }, transferA)).catch((e) => {
+          assert.equal(e.name, 'RepeatError')
           done()
         })
       })
@@ -153,9 +198,10 @@ describe('Plugin transfers (optimistic)', function () {
         executionCondition: undefined,
         cancellationCondition: undefined,
         expiresAt: undefined
-      }, transferA)).catch(() => {
+      }, transferA)).catch((e) => {
+        assert.equal(e.name, 'InvalidFieldsError')
         done()
-      })
+      }).catch(done)
     })
 
     it('should reject a transfer missing `account`', function (done) {
@@ -171,9 +217,10 @@ describe('Plugin transfers (optimistic)', function () {
         expiresAt: undefined
       }, transferA, {
         account: undefined
-      })).catch(() => {
+      })).catch((e) => {
+        assert.equal(e.name, 'InvalidFieldsError')
         done()
-      })
+      }).catch(done)
     })
 
     it('should reject a transfer missing `amount`', function (done) {
@@ -187,9 +234,10 @@ describe('Plugin transfers (optimistic)', function () {
         executionCondition: undefined,
         cancellationCondition: undefined,
         expiresAt: undefined
-      }, transferA)).catch(() => {
+      }, transferA)).catch((e) => {
+        assert.equal(e.name, 'InvalidFieldsError')
         done()
-      })
+      }).catch(done)
     })
   })
 
@@ -223,6 +271,14 @@ describe('Plugin transfers (optimistic)', function () {
         cancellationCondition: undefined,
         expiresAt: undefined
       }, transferA)).catch(done)
+    })
+
+    it('should not reply to a successful transfer', function (done) {
+      this.pluginB.replyToTransfer(uuid(), new Buffer('hello'))
+        .catch((e) => {
+          assert.equal(e.name, 'TransferNotFoundError')
+          done()
+        }).catch(done)
     })
   })
 })
