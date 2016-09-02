@@ -68,6 +68,8 @@ describe('Plugin transfers (optimistic)', function () {
 
       this.pluginB.once('incoming_transfer', (transfer) => {
         assert.equal(transfer.id, id)
+        assert.equal(transfer.amount - 0, 1.0)
+        assert.equal(transfer.account, transferA.account)
         done()
       })
 
@@ -88,8 +90,8 @@ describe('Plugin transfers (optimistic)', function () {
       this.pluginA.once('outgoing_transfer', (transfer) => {
         console.log(transfer)
         assert.equal(transfer.id, id)
-        assert.isOk(transfer.amount)
-        assert.isOk(transfer.account)
+        assert.equal(transfer.amount - 0, 1.0)
+        assert.equal(transfer.account, transferA.account)
         done()
       })
 
@@ -110,8 +112,8 @@ describe('Plugin transfers (optimistic)', function () {
       this.pluginB.once('incoming_transfer', (transfer) => {
         console.log(transfer)
         assert.equal(transfer.id, id)
-        assert.isOk(transfer.amount)
-        assert.isOk(transfer.account)
+        assert.equal(transfer.amount - 0, 1.0)
+        assert.equal(transfer.account, transferA.account)
         done()
       })
 
@@ -131,6 +133,8 @@ describe('Plugin transfers (optimistic)', function () {
 
       this.pluginB.once('incoming_transfer', (transfer, reason) => {
         assert.equal(transfer.id, id)
+        assert.equal(transfer.amount - 0, 1.0)
+        assert.equal(transfer.account, transferA.account)
 
         this.pluginA.send(Object.assign({
           id: id,
@@ -161,6 +165,8 @@ describe('Plugin transfers (optimistic)', function () {
 
       this.pluginB.once('incoming_transfer', (transfer, reason) => {
         assert.equal(transfer.id, id)
+        assert.equal(transfer.amount - 0, 1.0)
+        assert.equal(transfer.account, transferA.account)
 
         this.pluginB.send(Object.assign({
           id: id,
