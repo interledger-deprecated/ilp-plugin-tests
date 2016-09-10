@@ -23,7 +23,11 @@ store.put = (k, v) => { s[k] = v; return Promise.resolve(null) }
 store.del = (k) => { s[k] = undefined; return Promise.resolve(null) }
 
 const crypto = require('crypto')
-const token = crypto.randomBytes(32).toString('hex')
+const base64url = require('base64url')
+const token = base64url(JSON.stringify({
+  channel: crypto.randomBytes(32).toString('hex'),
+  host: 'ws://broker.hivemq.com:8000'
+}))
 
 // These objects specify the configs of different
 // plugins. There must be 2, so that they can send
