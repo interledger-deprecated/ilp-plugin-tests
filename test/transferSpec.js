@@ -9,6 +9,7 @@ const Plugin = testPlugin.plugin
 const optsA = testPlugin.options[0].pluginOptions
 const optsB = testPlugin.options[1].pluginOptions
 const transferA = testPlugin.options[0].transfer
+const transferB = testPlugin.options[1].transfer
 const timeout = testPlugin.timeout
 
 describe('Plugin transfers (optimistic)', function () {
@@ -51,14 +52,9 @@ describe('Plugin transfers (optimistic)', function () {
       this.pluginA.send(Object.assign({
         id: id,
         amount: '0.0',
-        data: new Buffer(''),
-        noteToSelf: new Buffer(''),
-        executionCondition: undefined,
-        cancellationCondition: undefined,
-        expiresAt: undefined
       }, transferA))
         .then((result) => {
-          assert.isNull(result, 'send should resolve to null')
+          assert.isNotOk(result, 'send should resolve to null')
         })
         .catch(done)
     })
@@ -76,11 +72,6 @@ describe('Plugin transfers (optimistic)', function () {
       this.pluginA.send(Object.assign({
         id: id,
         amount: '1.0',
-        data: new Buffer(''),
-        noteToSelf: new Buffer(''),
-        executionCondition: undefined,
-        cancellationCondition: undefined,
-        expiresAt: undefined
       }, transferA)).catch(done)
     })
 
@@ -98,11 +89,6 @@ describe('Plugin transfers (optimistic)', function () {
       this.pluginA.send(Object.assign({
         id: id,
         amount: '1.0',
-        data: new Buffer(''),
-        noteToSelf: new Buffer(''),
-        executionCondition: undefined,
-        cancellationCondition: undefined,
-        expiresAt: undefined
       }, transferA)).catch(done)
     })
 
@@ -120,15 +106,10 @@ describe('Plugin transfers (optimistic)', function () {
       this.pluginA.send(Object.assign({
         id: id,
         amount: '1.0',
-        data: new Buffer(''),
-        noteToSelf: new Buffer(''),
-        executionCondition: undefined,
-        cancellationCondition: undefined,
-        expiresAt: undefined
       }, transferA)).catch(done)
     })
 
-    it('should reject optimistic transfer with repeat id', function (done) {
+    it('should neither throw error nor send twice on optimistic transfer with repeat id', function (done) {
       const id = uuid()
 
       this.pluginB.once('incoming_transfer', (transfer, reason) => {
@@ -139,28 +120,20 @@ describe('Plugin transfers (optimistic)', function () {
         this.pluginA.send(Object.assign({
           id: id,
           amount: '1.0',
-          data: new Buffer(''),
-          noteToSelf: new Buffer(''),
-          executionCondition: undefined,
-          cancellationCondition: undefined,
-          expiresAt: undefined
-        }, transferA)).catch(() => {
-          done()
-        })
+        }, transferA))
+          .then(() => {
+            done()
+          })
+          .catch(done)
       })
 
       this.pluginA.send(Object.assign({
         id: id,
         amount: '1.0',
-        data: new Buffer(''),
-        noteToSelf: new Buffer(''),
-        executionCondition: undefined,
-        cancellationCondition: undefined,
-        expiresAt: undefined
       }, transferA)).catch(done)
     })
 
-    it('should reject transfer with repeat id (from receiver)', function (done) {
+    it('should reject transfer with repeat id which does not match original', function (done) {
       const id = uuid()
 
       this.pluginB.once('incoming_transfer', (transfer, reason) => {
@@ -170,26 +143,21 @@ describe('Plugin transfers (optimistic)', function () {
 
         this.pluginB.send(Object.assign({
           id: id,
-          amount: '1.0',
-          data: new Buffer(''),
-          noteToSelf: new Buffer(''),
-          executionCondition: undefined,
-          cancellationCondition: undefined,
-          expiresAt: undefined
-        }, transferA)).catch((e) => {
-          assert.equal(e.name, 'RepeatError')
-          done()
-        })
+          amount: '1.1',
+        }, transferA))
+          .then(() => {
+            assert(false)
+          })
+          .catch((e) => {
+            assert.equal(e.name, 'DuplicateIdError')
+            done()
+          })
+          .catch(done)
       })
 
       this.pluginA.send(Object.assign({
         id: id,
         amount: '1.0',
-        data: new Buffer(''),
-        noteToSelf: new Buffer(''),
-        executionCondition: undefined,
-        cancellationCondition: undefined,
-        expiresAt: undefined
       }, transferA)).catch(done)
     })
 
@@ -199,11 +167,6 @@ describe('Plugin transfers (optimistic)', function () {
       this.pluginA.send(Object.assign({
         id: id,
         amount: '-1.0',
-        data: new Buffer(''),
-        noteToSelf: new Buffer(''),
-        executionCondition: undefined,
-        cancellationCondition: undefined,
-        expiresAt: undefined
       }, transferA)).catch((e) => {
         assert.equal(e.name, 'InvalidFieldsError')
         done()
@@ -216,11 +179,17 @@ describe('Plugin transfers (optimistic)', function () {
       this.pluginA.send(Object.assign({
         id: id,
         amount: '1.0',
-        data: new Buffer(''),
-        noteToSelf: new Buffer(''),
-        executionCondition: undefined,
-        cancellationCondition: undefined,
-        expiresAt: undefined
+      }, transferA, {
+        account: undefined
+      })).catch((e) => {
+        assert.equal(e.name, 'InvalidFieldsError')
+        done()
+      }).catch(done)
+    })
+
+    it('should reject a transfer missing `id`', function (done) {
+      this.pluginA.send(Object.assign({
+        amount: '1.0',
       }, transferA, {
         account: undefined
       })).catch((e) => {
@@ -235,15 +204,24 @@ describe('Plugin transfers (optimistic)', function () {
       this.pluginA.send(Object.assign({
         id: id,
         amount: undefined,
-        data: new Buffer(''),
-        noteToSelf: new Buffer(''),
-        executionCondition: undefined,
-        cancellationCondition: undefined,
-        expiresAt: undefined
-      }, transferA)).catch((e) => {
-        assert.equal(e.name, 'InvalidFieldsError')
-        done()
-      }).catch(done)
+      }, transferA))
+        .catch((e) => {
+          assert.equal(e.name, 'InvalidFieldsError')
+          done()
+        }).catch(done)
+    })
+
+    it('should reject a transfer with a malformed `amount`', function (done) {
+      const id = uuid()
+
+      this.pluginA.send(Object.assign({
+        id: id,
+        amount: 'garbage',
+      }, transferA))
+        .catch((e) => {
+          assert.equal(e.name, 'InvalidFieldsError')
+          done()
+        }).catch(done)
     })
   })
 
@@ -262,25 +240,20 @@ describe('Plugin transfers (optimistic)', function () {
         })
 
         assert.equal(transfer.id, id)
-        this.pluginB.replyToTransfer(transfer.id, new Buffer('hello'))
+        this.pluginB.replyToTransfer(transfer.id, 'hello')
           .then((result) => {
-            assert.isNull(result, 'replyToTransfer should resolve to null')
+            assert.isNotOk(result, 'replyToTransfer should resolve to null')
           })
       })
 
       this.pluginA.send(Object.assign({
         id: id,
         amount: '1.0',
-        data: new Buffer(''),
-        noteToSelf: new Buffer(''),
-        executionCondition: undefined,
-        cancellationCondition: undefined,
-        expiresAt: undefined
       }, transferA)).catch(done)
     })
 
     it('should not reply to a successful transfer', function (done) {
-      this.pluginB.replyToTransfer(uuid(), new Buffer('hello'))
+      this.pluginB.replyToTransfer(uuid(), 'hello')
         .catch((e) => {
           assert.equal(e.name, 'TransferNotFoundError')
           done()

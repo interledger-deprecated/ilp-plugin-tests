@@ -43,7 +43,7 @@ describe('Plugin setup', function () {
       })
       this.plugin.connect()
         .then((result) => {
-          assert.isNull(result, 'connect should return a promise to null')
+          assert.isNotOk(result, 'connect should return a promise to null')
         })
         .catch(done)
     })
@@ -59,7 +59,7 @@ describe('Plugin setup', function () {
     it('should resolve to null', function (done) {
       this.plugin.connect()
         .then((result) => {
-          assert.isNull(result)
+          assert.isNotOk(result)
           done()
         })
     })
@@ -88,7 +88,7 @@ describe('Plugin setup', function () {
       this.plugin.once('connect', () => {
         this.plugin.disconnect()
           .then((result) => {
-            assert.isNull(result, 'disconnect should return a promise to null')
+            assert.isNotOk(result, 'disconnect should return a promise to null')
           })
           .catch(done)
       })
@@ -100,7 +100,7 @@ describe('Plugin setup', function () {
       this.plugin.once('connect', () => {
         this.plugin.disconnect()
           .then((result) => {
-            assert.isNull(result)
+            assert.isNotOk(result)
             done()
           })
       })

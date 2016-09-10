@@ -24,9 +24,11 @@ store.del = (k) => { s[k] = undefined; return Promise.resolve(null) }
 
 const crypto = require('crypto')
 const base64url = require('base64url')
+
+// give a well formed token as a placeholder, but connection is mocked
 const token = base64url(JSON.stringify({
   channel: crypto.randomBytes(32).toString('hex'),
-  host: 'ws://broker.hivemq.com:8000'
+  host: 'ws://broker.mqtt.example:8000'
 }))
 
 // These objects specify the configs of different
