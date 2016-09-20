@@ -34,6 +34,12 @@ describe('Plugin info', function () {
       assert.isObject(p)
       assert.isNumber(p.precision, 'should contain "precision"')
       assert.isNumber(p.scale, 'should contain "scale"')
+      assert.isArray(p.connectors)
+      p.connectors.forEach((connector) => {
+        assert.isString(connector.id)
+        assert.isString(connector.name)
+        assert.isString(connector.connector)
+      })
     })
   })
 
@@ -46,20 +52,6 @@ describe('Plugin info', function () {
       const p = yield this.plugin.getBalance()
       assert.isString(p)
       assert.isFalse(isNaN(p - 0), 'should be a number in string form')
-    })
-  })
-
-  describe('getConnectors', function () {
-    it('should be a function', function () {
-      assert.isFunction(this.plugin.getConnectors)
-    })
-
-    it('should return promise to array of strings', function * () {
-      const p = yield this.plugin.getConnectors()
-      assert.isArray(p)
-      for (let e of p) {
-        assert.isString(e)
-      }
     })
   })
 

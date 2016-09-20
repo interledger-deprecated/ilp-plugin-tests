@@ -41,31 +41,15 @@ describe('Plugin transfers (optimistic)', function () {
       assert.isFunction(this.pluginA.send)
     })
 
-    it('should send an optimistic transfer with 0 amount', function (done) {
-      const id = uuid()
-
-      this.pluginB.once('incoming_transfer', (transfer) => {
-        assert.equal(transfer.id, id)
-        done()
-      })
-
-      this.pluginA.send(Object.assign({
-        id: id,
-        amount: '0.0',
-      }, transferA))
-        .then((result) => {
-          assert.isNotOk(result, 'send should resolve to null')
-        })
-        .catch(done)
-    })
-
     it('should send an optimistic transfer with amount 1', function (done) {
       const id = uuid()
 
       this.pluginB.once('incoming_transfer', (transfer) => {
         assert.equal(transfer.id, id)
         assert.equal(transfer.amount - 0, 1.0)
-        assert.equal(transfer.account, transferA.account)
+        // The account field refers to the local source account that the transfer originated from.
+        // (see https://github.com/interledger/rfcs/blob/master/0004-ledger-plugin-interface/0004-ledger-plugin-interface.md#incomingtransfer)
+        assert.equal(transfer.account, transferB.account)
         done()
       })
 
@@ -79,7 +63,6 @@ describe('Plugin transfers (optimistic)', function () {
       const id = uuid()
 
       this.pluginA.once('outgoing_transfer', (transfer) => {
-        console.log(transfer)
         assert.equal(transfer.id, id)
         assert.equal(transfer.amount - 0, 1.0)
         assert.equal(transfer.account, transferA.account)
@@ -96,10 +79,9 @@ describe('Plugin transfers (optimistic)', function () {
       const id = uuid()
 
       this.pluginB.once('incoming_transfer', (transfer) => {
-        console.log(transfer)
         assert.equal(transfer.id, id)
         assert.equal(transfer.amount - 0, 1.0)
-        assert.equal(transfer.account, transferA.account)
+        assert.equal(transfer.account, transferB.account)
         done()
       })
 
@@ -115,7 +97,7 @@ describe('Plugin transfers (optimistic)', function () {
       this.pluginB.once('incoming_transfer', (transfer, reason) => {
         assert.equal(transfer.id, id)
         assert.equal(transfer.amount - 0, 1.0)
-        assert.equal(transfer.account, transferA.account)
+        assert.equal(transfer.account, transferB.account)
 
         this.pluginA.send(Object.assign({
           id: id,
@@ -139,7 +121,7 @@ describe('Plugin transfers (optimistic)', function () {
       this.pluginB.once('incoming_transfer', (transfer, reason) => {
         assert.equal(transfer.id, id)
         assert.equal(transfer.amount - 0, 1.0)
-        assert.equal(transfer.account, transferA.account)
+        assert.equal(transfer.account, transferB.account)
 
         this.pluginB.send(Object.assign({
           id: id,
@@ -159,6 +141,18 @@ describe('Plugin transfers (optimistic)', function () {
         id: id,
         amount: '1.0',
       }, transferA)).catch(done)
+    })
+
+    it('should reject optimistic transfer with amount 0', function (done) {
+      const id = uuid()
+
+      this.pluginA.send(Object.assign({
+        id: id,
+        amount: '0'
+      }, transferA)).catch((e) => {
+        assert.equal(e.name, 'InvalidFieldsError')
+        done()
+      }).catch(done)
     })
 
     it('should reject optimistic transfer with amount -1', function (done) {
