@@ -16,7 +16,7 @@
     "interledger",
     "ledger"
   ],
-  "devDependencies": {
+  "dependencies": {
     "chai": "^3.5.0",
     "co-mocha": "^1.1.2",
     "five-bells-condition": "^3.2.0",
