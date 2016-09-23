@@ -10,6 +10,7 @@ const Plugin = testPlugin.plugin
 const optsA = testPlugin.options[0].pluginOptions
 const optsB = testPlugin.options[1].pluginOptions
 const transferA = testPlugin.options[0].transfer
+const transferB = testPlugin.options[1].transfer
 const timeout = testPlugin.timeout
 
 const makeExpiry = (t) => {
@@ -32,6 +33,7 @@ describe('Plugin transfers (universal)', function () {
     assert.isTrue(this.pluginA.isConnected())
     assert.isTrue(this.pluginB.isConnected())
 
+    this.prefixA = yield this.pluginA.getPrefix()
     this.timeout += timeout
   })
 
@@ -53,13 +55,13 @@ describe('Plugin transfers (universal)', function () {
 
       this.pluginA.once('outgoing_fulfill', (transfer) => {
         assert.equal(transfer.id, id)
-        assert.equal(transfer.ledger, 'test.nerd.')
+        assert.equal(transfer.ledger, this.prefixA)
         done()
       })
 
       this.pluginB.once('incoming_prepare', (transfer) => {
         assert.equal(transfer.id, id)
-        assert.equal(transfer.ledger, 'test.nerd.')
+        assert.equal(transfer.ledger, this.prefixA)
 
         this.pluginB.fulfillCondition(id, fulfillment)
           .then((result) => {
@@ -80,13 +82,13 @@ describe('Plugin transfers (universal)', function () {
 
       this.pluginB.once('incoming_fulfill', (transfer) => {
         assert.equal(transfer.id, id)
-        assert.equal(transfer.ledger, 'test.nerd.')
+        assert.equal(transfer.ledger, this.prefixA)
         done()
       })
 
       this.pluginB.once('incoming_prepare', (transfer) => {
         assert.equal(transfer.id, id)
-        assert.equal(transfer.ledger, 'test.nerd.')
+        assert.equal(transfer.ledger, this.prefixA)
 
         this.pluginB.fulfillCondition(id, fulfillment)
           .catch(done)
@@ -105,7 +107,7 @@ describe('Plugin transfers (universal)', function () {
 
       this.pluginA.once('outgoing_cancel', (transfer) => {
         assert.equal(transfer.id, id)
-        assert.equal(transfer.ledger, 'test.nerd.')
+        assert.equal(transfer.ledger, this.prefixA)
         done()
       })
 
@@ -113,7 +115,7 @@ describe('Plugin transfers (universal)', function () {
         id: id,
         amount: '1.0',
         executionCondition: condition,
-        expiresAt: makeExpiry(0)
+        expiresAt: makeExpiry(1)
       }, transferA))
     })
 
@@ -123,7 +125,7 @@ describe('Plugin transfers (universal)', function () {
       this.pluginB.once('incoming_transfer', (transfer) => {
         assert.equal(transfer.id, id)
         assert.equal(transfer.amount - 0, 1.0)
-        assert.equal(transfer.account, transferA.account)
+        assert.equal(transfer.account, transferB.account)
 
         this.pluginA.fulfillCondition(id, fulfillment)
           .then(() => {
@@ -220,8 +222,8 @@ describe('Plugin transfers (universal)', function () {
     it('should fulfill a transfer after being unsuccessful', function * () {
       const id = uuid()
 
-      const fulfillStub = sinon.stub()
-      this.pluginA.on('outgoing_fulfill', fulfillStub)
+      const promise = new Promise(resolve =>
+        this.pluginA.once('outgoing_fulfill', resolve))
 
       yield this.pluginA.send(Object.assign({
         id: id,
@@ -236,8 +238,7 @@ describe('Plugin transfers (universal)', function () {
         })
 
       yield this.pluginA.fulfillCondition(id, fulfillment)
-
-      sinon.assert.calledOnce(fulfillStub)
+      yield promise
     })
 
     it('should not fulfill a transfer with a non-matching id', function * () {
@@ -260,7 +261,7 @@ describe('Plugin transfers (universal)', function () {
 
       yield this.pluginA.fulfillCondition(fakeId, fulfillment)
         .catch((e) => {
-          assert.equal(e.name, 'TransferNotFoundError')          
+          assert.equal(e.name, 'TransferNotFoundError')
         })
 
       yield promise
@@ -273,7 +274,7 @@ describe('Plugin transfers (universal)', function () {
 
       this.pluginA.once('outgoing_reject', (transfer) => {
         assert.equal(transfer.id, id)
-        assert.equal(transfer.ledger, 'test.nerd.')
+        assert.equal(transfer.ledger, this.prefixA)
 
         this.pluginA.fulfillCondition(id, fulfillment)
           .then(() => {
@@ -288,7 +289,7 @@ describe('Plugin transfers (universal)', function () {
 
       this.pluginB.once('incoming_prepare', (transfer) => {
         assert.equal(transfer.id, id)
-        assert.equal(transfer.ledger, 'test.nerd.')
+        assert.equal(transfer.ledger, this.prefixA)
 
         this.pluginB.rejectIncomingTransfer(id)
       })
@@ -311,7 +312,7 @@ describe('Plugin transfers (universal)', function () {
 
       this.pluginA.once('outgoing_fulfill', (transfer) => {
         assert.equal(transfer.id, id)
-        assert.equal(transfer.ledger, 'test.nerd.')
+        assert.equal(transfer.ledger, this.prefixA)
 
         this.pluginA.getFulfillment(transfer.id)
           .then((f) => {
@@ -322,7 +323,7 @@ describe('Plugin transfers (universal)', function () {
 
       this.pluginB.once('incoming_prepare', (transfer) => {
         assert.equal(transfer.id, id)
-        assert.equal(transfer.ledger, 'test.nerd.')
+        assert.equal(transfer.ledger, this.prefixA)
 
         this.pluginB.fulfillCondition(id, fulfillment)
           .then((result) => {
@@ -345,7 +346,7 @@ describe('Plugin transfers (universal)', function () {
       this.pluginB.once('incoming_transfer', (transfer) => {
         assert.equal(transfer.id, id)
         assert.equal(transfer.amount - 0, 1.0)
-        assert.equal(transfer.account, transferA.account)
+        assert.equal(transfer.account, transferB.account)
 
         this.pluginA.getFulfillment(id)
           .then(() => {
@@ -369,7 +370,7 @@ describe('Plugin transfers (universal)', function () {
 
       this.pluginA.once('outgoing_reject', (transfer) => {
         assert.equal(transfer.id, id)
-        assert.equal(transfer.ledger, 'test.nerd.')
+        assert.equal(transfer.ledger, this.prefixA)
 
         this.pluginA.getFulfillment(id)
           .then(() => {
@@ -384,7 +385,7 @@ describe('Plugin transfers (universal)', function () {
 
       this.pluginB.once('incoming_prepare', (transfer) => {
         assert.equal(transfer.id, id)
-        assert.equal(transfer.ledger, 'test.nerd.')
+        assert.equal(transfer.ledger, this.prefixA)
 
         this.pluginB.rejectIncomingTransfer(id)
       })
@@ -414,7 +415,7 @@ describe('Plugin transfers (universal)', function () {
 
       this.pluginB.once('incoming_prepare', (transfer) => {
         assert.equal(transfer.id, id)
-        assert.equal(transfer.ledger, 'test.nerd.')
+        assert.equal(transfer.ledger, this.prefixA)
 
         this.pluginA.getFulfillment(id)
           .catch((e) => {
@@ -443,17 +444,18 @@ describe('Plugin transfers (universal)', function () {
     it('should reject a transfer with a condition', function (done) {
       const id = uuid()
 
-      this.pluginA.once('outgoing_reject', (transfer) => {
+      this.pluginA.once('outgoing_reject', (transfer, reason) => {
         assert.equal(transfer.id, id)
-        assert.equal(transfer.ledger, 'test.nerd.')
+        assert.equal(transfer.ledger, this.prefixA)
+        assert.equal(reason, 'fail')
         done()
       })
 
       this.pluginB.once('incoming_prepare', (transfer) => {
         assert.equal(transfer.id, id)
-        assert.equal(transfer.ledger, 'test.nerd.')
+        assert.equal(transfer.ledger, this.prefixA)
 
-        this.pluginB.rejectIncomingTransfer(id)
+        this.pluginB.rejectIncomingTransfer(id, 'fail')
       })
 
       this.pluginA.send(Object.assign({
@@ -469,7 +471,7 @@ describe('Plugin transfers (universal)', function () {
 
       this.pluginA.once('outgoing_reject', (transfer) => {
         assert.equal(transfer.id, id)
-        assert.equal(transfer.ledger, 'test.nerd.')
+        assert.equal(transfer.ledger, this.prefixA)
         this.pluginB.rejectIncomingTransfer(id)
           .then(() => {
             done()
@@ -479,7 +481,7 @@ describe('Plugin transfers (universal)', function () {
 
       this.pluginB.once('incoming_prepare', (transfer) => {
         assert.equal(transfer.id, id)
-        assert.equal(transfer.ledger, 'test.nerd.')
+        assert.equal(transfer.ledger, this.prefixA)
 
         this.pluginB.rejectIncomingTransfer(id)
           .catch(done)
@@ -499,7 +501,7 @@ describe('Plugin transfers (universal)', function () {
       this.pluginB.once('incoming_transfer', (transfer) => {
         assert.equal(transfer.id, id)
         assert.equal(transfer.amount - 0, 1.0)
-        assert.equal(transfer.account, transferA.account)
+        assert.equal(transfer.account, transferB.account)
 
         this.pluginB.rejectIncomingTransfer(id)
           .then(() => {
@@ -523,7 +525,7 @@ describe('Plugin transfers (universal)', function () {
 
       this.pluginB.once('incoming_prepare', (transfer) => {
         assert.equal(transfer.id, id)
-        assert.equal(transfer.ledger, 'test.nerd.')
+        assert.equal(transfer.ledger, this.prefixA)
 
         this.pluginA.rejectIncomingTransfer(id)
           .catch((e) => {
@@ -546,7 +548,7 @@ describe('Plugin transfers (universal)', function () {
 
       this.pluginA.once('outgoing_fulfill', (transfer) => {
         assert.equal(transfer.id, id)
-        assert.equal(transfer.ledger, 'test.nerd.')
+        assert.equal(transfer.ledger, this.prefixA)
 
         this.pluginB.rejectIncomingTransfer(id)
           .then(() => {
@@ -561,7 +563,7 @@ describe('Plugin transfers (universal)', function () {
 
       this.pluginB.once('incoming_prepare', (transfer) => {
         assert.equal(transfer.id, id)
-        assert.equal(transfer.ledger, 'test.nerd.')
+        assert.equal(transfer.ledger, this.prefixA)
 
         this.pluginA.fulfillCondition(id, fulfillment)
       })
