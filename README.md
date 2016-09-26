@@ -1,4 +1,7 @@
-# Ilp-Plugin Tests
+# Ilp-Plugin Tests [![npm][npm-image]][npm-url]
+
+[npm-image]: https://img.shields.io/npm/v/ilp-plugin-tests.svg?style=flat
+[npm-url]: https://npmjs.org/package/ilp-plugin-tests
 
 > A test suite for ILP LedgerPlugins, to make sure they conform to the
 > javascript LedgerPlugin interface.
