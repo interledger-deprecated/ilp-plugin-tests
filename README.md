@@ -31,7 +31,7 @@ contain options in the form:
 ```
 
 The file [./configs/virtual.js
-](https://github.com/interledger/js-ilp-plugin-tests/blob/master/configs/virtual.js)
+](https://github.com/interledgerjs/ilp-plugin-tests/blob/master/configs/virtual.js)
 contains an example set of options. For example, to test `ilp-plugin-virtual`, you
 could run:
 
