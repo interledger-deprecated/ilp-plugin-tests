@@ -218,40 +218,4 @@ describe('Plugin transfers (optimistic)', function () {
         }).catch(done)
     })
   })
-
-  describe('replyToTransfer', function (done) {
-    it('should be a function', function () {
-      assert.isFunction(this.pluginA.replyToTransfer)
-    })
-
-    it('should reply to a successful transfer', function (done) {
-      const id = uuid()
-
-      this.pluginB.once('incoming_transfer', (transfer) => {
-        this.pluginA.once('reply', (transfer, message) => {
-          assert.equal(transfer.id, id)
-          done()
-        })
-
-        assert.equal(transfer.id, id)
-        this.pluginB.replyToTransfer(transfer.id, 'hello')
-          .then((result) => {
-            assert.isNotOk(result, 'replyToTransfer should resolve to null')
-          })
-      })
-
-      this.pluginA.sendTransfer(Object.assign({
-        id: id,
-        amount: '1.0',
-      }, transferA)).catch(done)
-    })
-
-    it('should not reply to a successful transfer', function (done) {
-      this.pluginB.replyToTransfer(uuid(), 'hello')
-        .catch((e) => {
-          assert.equal(e.name, 'TransferNotFoundError')
-          done()
-        }).catch(done)
-    })
-  })
 })

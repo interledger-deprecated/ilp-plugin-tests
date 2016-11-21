@@ -90,17 +90,6 @@ describe('Plugin messaging', function () {
       }).catch(done)
     })
 
-    it('should reject message with an invalid `account`', function (done) {
-      this.pluginA.sendMessage({
-        ledger: this.prefix,
-        account: 'fail',
-        data: {foo: 'bar'}
-      }).catch((e) => {
-        assert.equal(e.name, 'InvalidFieldsError')
-        done()
-      }).catch(done)
-    })
-
     it('should reject message missing `data`', function (done) {
       this.pluginA.sendMessage({
         ledger: this.prefix,
