@@ -127,7 +127,7 @@ describe('Plugin transfers (universal)', function () {
         assert.equal(transfer.amount - 0, 1.0)
         assert.equal(transfer.account, transferB.account)
 
-        this.pluginA.fulfillCondition(id, fulfillment)
+        this.pluginB.fulfillCondition(id, fulfillment)
           .then(() => {
             assert(false)
           })
@@ -161,7 +161,7 @@ describe('Plugin transfers (universal)', function () {
         expiresAt: makeExpiry(timeout)
       }, transferA))
 
-      yield this.pluginA.fulfillCondition(id, 'garbage')
+      yield this.pluginB.fulfillCondition(id, 'garbage')
         .catch((e) => {
           assert.equal(e.name, 'InvalidFieldsError')
         })
@@ -189,7 +189,7 @@ describe('Plugin transfers (universal)', function () {
         expiresAt: makeExpiry(timeout)
       }, transferA))
 
-      yield this.pluginA.fulfillCondition(id, 'cf:0:abc')
+      yield this.pluginB.fulfillCondition(id, 'cf:0:abc')
         .catch((e) => {
           assert.equal(e.name, 'NotAcceptedError')
         })
@@ -213,8 +213,8 @@ describe('Plugin transfers (universal)', function () {
         expiresAt: makeExpiry(timeout)
       }, transferA))
 
-      yield this.pluginA.fulfillCondition(id, fulfillment)
-      yield this.pluginA.fulfillCondition(id, fulfillment)
+      yield this.pluginB.fulfillCondition(id, fulfillment)
+      yield this.pluginB.fulfillCondition(id, fulfillment)
 
       sinon.assert.calledOnce(fulfillStub)
     })
@@ -232,12 +232,12 @@ describe('Plugin transfers (universal)', function () {
         expiresAt: makeExpiry(timeout)
       }, transferA))
 
-      yield this.pluginA.fulfillCondition(id, 'garbage')
+      yield this.pluginB.fulfillCondition(id, 'garbage')
         .catch((e) => {
           assert.equal(e.name, 'InvalidFieldsError')
         })
 
-      yield this.pluginA.fulfillCondition(id, fulfillment)
+      yield this.pluginB.fulfillCondition(id, fulfillment)
       yield promise
     })
 
@@ -259,7 +259,7 @@ describe('Plugin transfers (universal)', function () {
         expiresAt: makeExpiry(timeout)
       }, transferA))
 
-      yield this.pluginA.fulfillCondition(fakeId, fulfillment)
+      yield this.pluginB.fulfillCondition(fakeId, fulfillment)
         .catch((e) => {
           assert.equal(e.name, 'TransferNotFoundError')
         })
@@ -276,7 +276,7 @@ describe('Plugin transfers (universal)', function () {
         assert.equal(transfer.id, id)
         assert.equal(transfer.ledger, this.prefix)
 
-        this.pluginA.fulfillCondition(id, fulfillment)
+        this.pluginB.fulfillCondition(id, fulfillment)
           .then(() => {
             assert(false)
           })
@@ -411,7 +411,6 @@ describe('Plugin transfers (universal)', function () {
 
     it('should reject for an incomplete transfer', function (done) {
       const id = uuid()
-
 
       this.pluginB.once('incoming_prepare', (transfer) => {
         assert.equal(transfer.id, id)
@@ -565,7 +564,7 @@ describe('Plugin transfers (universal)', function () {
         assert.equal(transfer.id, id)
         assert.equal(transfer.ledger, this.prefix)
 
-        this.pluginA.fulfillCondition(id, fulfillment)
+        this.pluginB.fulfillCondition(id, fulfillment)
       })
 
       this.pluginA.sendTransfer(Object.assign({
