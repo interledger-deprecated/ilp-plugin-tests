@@ -2,7 +2,6 @@
 
 const assert = require('chai').assert
 const testPlugin = require('..')
-const uuid = require('uuid4')
 
 const Plugin = testPlugin.plugin
 
@@ -14,6 +13,9 @@ const timeout = testPlugin.timeout
 
 describe('Plugin messaging', function () {
   beforeEach(function * () {
+    // give plenty of time more than the expiry
+    this.timeout += timeout * 2
+
     this.pluginA = new Plugin(optsA)
     this.pluginB = new Plugin(optsB)
 
@@ -29,7 +31,6 @@ describe('Plugin messaging', function () {
     assert.isTrue(this.pluginB.isConnected())
 
     this.prefix = yield this.pluginA.getPrefix()
-    this.timeout += timeout
   })
 
   afterEach(function * () {

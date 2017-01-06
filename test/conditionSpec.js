@@ -19,6 +19,9 @@ const makeExpiry = (t) => {
 
 describe('Plugin transfers (universal)', function () {
   beforeEach(function * () {
+    // give plenty of time more than the expiry
+    this.timeout += timeout * 2
+
     this.pluginA = new Plugin(optsA)
     this.pluginB = new Plugin(optsB)
 
@@ -34,7 +37,6 @@ describe('Plugin transfers (universal)', function () {
     assert.isTrue(this.pluginB.isConnected())
 
     this.prefix = yield this.pluginA.getPrefix()
-    this.timeout += timeout
   })
 
   afterEach(function * () {
@@ -140,7 +142,7 @@ describe('Plugin transfers (universal)', function () {
 
       this.pluginA.sendTransfer(Object.assign({
         id: id,
-        amount: '1.0',
+        amount: '1.0'
       }, transferA)).catch(done)
     })
 
@@ -361,7 +363,7 @@ describe('Plugin transfers (universal)', function () {
 
       this.pluginA.sendTransfer(Object.assign({
         id: id,
-        amount: '1.0',
+        amount: '1.0'
       }, transferA)).catch(done)
     })
 
@@ -515,7 +517,7 @@ describe('Plugin transfers (universal)', function () {
 
       this.pluginA.sendTransfer(Object.assign({
         id: id,
-        amount: '1.0',
+        amount: '1.0'
       }, transferA)).catch(done)
     })
 
