@@ -9,10 +9,11 @@ const timeout = testPlugin.timeout
 
 describe('Plugin setup', function () {
   beforeEach(function () {
+    // give plenty of time more than the expiry
+    this.timeout += timeout * 2
+
     this.plugin = new Plugin(opts)
     assert.isObject(this.plugin)
-
-    this.timeout += timeout
   })
 
   afterEach(function * () {
@@ -35,25 +36,6 @@ describe('Plugin setup', function () {
   describe('connect', function () {
     it('should be a function', function () {
       assert.isFunction(this.plugin.connect)
-    })
-
-    it('connects and emits "connect"', function (done) {
-      this.plugin.once('connect', () => {
-        done()
-      })
-      this.plugin.connect()
-        .then((result) => {
-          assert.isNotOk(result, 'connect should return a promise to null')
-        })
-        .catch(done)
-    })
-
-    it('returns "true" from isConnected after connect', function (done) {
-      this.plugin.once('connect', () => {
-        assert.isTrue(this.plugin.isConnected())
-        done()
-      })
-      this.plugin.connect().catch(done)
     })
 
     it('should resolve to null', function (done) {
@@ -113,20 +95,6 @@ describe('Plugin setup', function () {
         this.plugin.once('disconnect', () => {
           assert.isFalse(this.plugin.isConnected())
           done()
-        })
-        this.plugin.disconnect()
-      })
-      this.plugin.connect()
-    })
-
-    it('should reconnect', function (done) {
-      this.plugin.once('connect', () => {
-        this.plugin.once('disconnect', () => {
-          this.plugin.once('connect', () => {
-            assert.isTrue(this.plugin.isConnected())
-            done()
-          })
-          this.plugin.connect()
         })
         this.plugin.disconnect()
       })

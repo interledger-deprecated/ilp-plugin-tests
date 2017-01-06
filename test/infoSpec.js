@@ -9,6 +9,9 @@ const timeout = testPlugin.timeout
 
 describe('Plugin info', function () {
   beforeEach(function * () {
+    // give plenty of time more than the expiry
+    this.timeout += timeout * 2
+
     this.plugin = new Plugin(opts)
     assert.isObject(this.plugin)
 
@@ -16,8 +19,6 @@ describe('Plugin info', function () {
     this.plugin.connect()
     yield p
     assert.isTrue(this.plugin.isConnected())
-
-    this.timeout += timeout
   })
 
   afterEach(function * () {
@@ -38,7 +39,6 @@ describe('Plugin info', function () {
       p.connectors.forEach((connector) => {
         assert.isString(connector.id)
         assert.isString(connector.name)
-        assert.isString(connector.connector)
       })
     })
   })

@@ -14,6 +14,9 @@ const timeout = testPlugin.timeout
 
 describe('Plugin transfers (optimistic)', function () {
   beforeEach(function * () {
+    // give plenty of time more than the expiry
+    this.timeout += timeout * 2
+
     this.pluginA = new Plugin(optsA)
     this.pluginB = new Plugin(optsB)
 
@@ -27,8 +30,6 @@ describe('Plugin transfers (optimistic)', function () {
 
     assert.isTrue(this.pluginA.isConnected())
     assert.isTrue(this.pluginB.isConnected())
-
-    this.timeout += timeout
   })
 
   afterEach(function * () {
@@ -55,7 +56,7 @@ describe('Plugin transfers (optimistic)', function () {
 
       this.pluginA.sendTransfer(Object.assign({
         id: id,
-        amount: '1.0',
+        amount: '1.0'
       }, transferA)).catch(done)
     })
 
@@ -71,7 +72,7 @@ describe('Plugin transfers (optimistic)', function () {
 
       this.pluginA.sendTransfer(Object.assign({
         id: id,
-        amount: '1.0',
+        amount: '1.0'
       }, transferA)).catch(done)
     })
 
@@ -87,7 +88,7 @@ describe('Plugin transfers (optimistic)', function () {
 
       this.pluginA.sendTransfer(Object.assign({
         id: id,
-        amount: '1.0',
+        amount: '1.0'
       }, transferA)).catch(done)
     })
 
@@ -101,7 +102,7 @@ describe('Plugin transfers (optimistic)', function () {
 
         this.pluginA.sendTransfer(Object.assign({
           id: id,
-          amount: '1.0',
+          amount: '1.0'
         }, transferA))
           .then(() => {
             done()
@@ -111,7 +112,7 @@ describe('Plugin transfers (optimistic)', function () {
 
       this.pluginA.sendTransfer(Object.assign({
         id: id,
-        amount: '1.0',
+        amount: '1.0'
       }, transferA)).catch(done)
     })
 
@@ -125,7 +126,7 @@ describe('Plugin transfers (optimistic)', function () {
 
         this.pluginB.sendTransfer(Object.assign({
           id: id,
-          amount: '1.1',
+          amount: '1.1'
         }, transferA))
           .then(() => {
             assert(false)
@@ -139,7 +140,7 @@ describe('Plugin transfers (optimistic)', function () {
 
       this.pluginA.sendTransfer(Object.assign({
         id: id,
-        amount: '1.0',
+        amount: '1.0'
       }, transferA)).catch(done)
     })
 
@@ -160,7 +161,7 @@ describe('Plugin transfers (optimistic)', function () {
 
       this.pluginA.sendTransfer(Object.assign({
         id: id,
-        amount: '-1.0',
+        amount: '-1.0'
       }, transferA)).catch((e) => {
         assert.equal(e.name, 'InvalidFieldsError')
         done()
@@ -172,7 +173,7 @@ describe('Plugin transfers (optimistic)', function () {
 
       this.pluginA.sendTransfer(Object.assign({
         id: id,
-        amount: '1.0',
+        amount: '1.0'
       }, transferA, {
         account: undefined
       })).catch((e) => {
@@ -183,7 +184,7 @@ describe('Plugin transfers (optimistic)', function () {
 
     it('should reject a transfer missing `id`', function (done) {
       this.pluginA.sendTransfer(Object.assign({
-        amount: '1.0',
+        amount: '1.0'
       }, transferA, {
         account: undefined
       })).catch((e) => {
@@ -197,7 +198,7 @@ describe('Plugin transfers (optimistic)', function () {
 
       this.pluginA.sendTransfer(Object.assign({
         id: id,
-        amount: undefined,
+        amount: undefined
       }, transferA))
         .catch((e) => {
           assert.equal(e.name, 'InvalidFieldsError')
@@ -210,7 +211,7 @@ describe('Plugin transfers (optimistic)', function () {
 
       this.pluginA.sendTransfer(Object.assign({
         id: id,
-        amount: 'garbage',
+        amount: 'garbage'
       }, transferA))
         .catch((e) => {
           assert.equal(e.name, 'InvalidFieldsError')
