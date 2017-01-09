@@ -44,16 +44,13 @@ describe('Plugin setup', function () {
           assert.isNotOk(result)
           done()
         })
+        .catch(done)
     })
 
-    it('ignores if called twice', function (done) {
-      this.plugin.once('connect', () => {
-        assert.isTrue(this.plugin.isConnected())
-        done()
-      })
-
-      this.plugin.connect()
-      this.plugin.connect()
+    it('ignores if called twice', function * () {
+      yield this.plugin.connect()
+      yield this.plugin.connect()
+      assert.isTrue(this.plugin.isConnected())
     })
   })
 
@@ -85,6 +82,7 @@ describe('Plugin setup', function () {
             assert.isNotOk(result)
             done()
           })
+          .catch(done)
       })
 
       this.plugin.connect()
@@ -96,7 +94,7 @@ describe('Plugin setup', function () {
           assert.isFalse(this.plugin.isConnected())
           done()
         })
-        this.plugin.disconnect()
+        this.plugin.disconnect().catch(done)
       })
       this.plugin.connect()
     })

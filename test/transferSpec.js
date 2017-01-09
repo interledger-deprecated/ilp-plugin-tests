@@ -21,11 +21,11 @@ describe('Plugin transfers (optimistic)', function () {
     this.pluginB = new Plugin(optsB)
 
     const pA = new Promise(resolve => this.pluginA.once('connect', resolve))
-    this.pluginA.connect()
+    yield this.pluginA.connect()
     yield pA
 
     const pB = new Promise(resolve => this.pluginB.once('connect', resolve))
-    this.pluginB.connect()
+    yield this.pluginB.connect()
     yield pB
 
     assert.isTrue(this.pluginA.isConnected())
