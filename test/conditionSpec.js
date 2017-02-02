@@ -36,7 +36,7 @@ describe('Plugin transfers (universal)', function () {
     assert.isTrue(this.pluginA.isConnected())
     assert.isTrue(this.pluginB.isConnected())
 
-    this.prefix = yield this.pluginA.getPrefix()
+    this.prefix = this.pluginA.getInfo().prefix
   })
 
   afterEach(function * () {

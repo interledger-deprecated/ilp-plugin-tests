@@ -30,15 +30,16 @@ describe('Plugin info', function () {
       assert.isFunction(this.plugin.getInfo)
     })
 
-    it('should return a promise to object with correct fields', function * () {
-      const p = yield this.plugin.getInfo()
+    it('should return a promise to object with correct fields', function () {
+      const p = this.plugin.getInfo()
       assert.isObject(p)
       assert.isNumber(p.precision, 'should contain "precision"')
       assert.isNumber(p.scale, 'should contain "scale"')
       assert.isArray(p.connectors)
+      assert.match(p.prefix, /^[a-zA-Z0-9._~-]+\.$/,
+        'should match ilp address pattern and end in "."')
       p.connectors.forEach((connector) => {
-        assert.isString(connector.id)
-        assert.isString(connector.name)
+        assert.isString(connector)
       })
     })
   })
@@ -52,18 +53,6 @@ describe('Plugin info', function () {
       const p = yield this.plugin.getBalance()
       assert.isString(p)
       assert.isFalse(isNaN(p - 0), 'should be a number in string form')
-    })
-  })
-
-  describe('getPrefix', function () {
-    it('should be a function', function () {
-      assert.isFunction(this.plugin.getPrefix)
-    })
-
-    it('should return a ilp ledger address', function * () {
-      const prefix = yield this.plugin.getPrefix()
-      assert.match(prefix, /^[a-zA-Z0-9._~-]+\.$/,
-        'should match ilp address pattern and end in "."')
     })
   })
 })
