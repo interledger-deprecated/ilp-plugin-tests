@@ -39,7 +39,7 @@ describe('Plugin setup', function () {
     })
 
     it('should resolve to null', function (done) {
-      this.plugin.connect()
+      this.plugin.connect({ timeout })
         .then((result) => {
           assert.isNotOk(result)
           done()
@@ -48,8 +48,8 @@ describe('Plugin setup', function () {
     })
 
     it('ignores if called twice', function * () {
-      yield this.plugin.connect()
-      yield this.plugin.connect()
+      yield this.plugin.connect({ timeout })
+      yield this.plugin.connect({ timeout })
       assert.isTrue(this.plugin.isConnected())
     })
   })
@@ -72,7 +72,7 @@ describe('Plugin setup', function () {
           .catch(done)
       })
 
-      this.plugin.connect()
+      this.plugin.connect({ timeout })
     })
 
     it('should resolve to null', function (done) {
@@ -85,7 +85,7 @@ describe('Plugin setup', function () {
           .catch(done)
       })
 
-      this.plugin.connect()
+      this.plugin.connect({ timeout })
     })
 
     it('returns "false" from isConnected after disconnect', function (done) {
@@ -96,7 +96,7 @@ describe('Plugin setup', function () {
         })
         this.plugin.disconnect().catch(done)
       })
-      this.plugin.connect()
+      this.plugin.connect({ timeout })
     })
   })
 })

@@ -14,7 +14,7 @@ const transferB = testPlugin.options[1].transfer
 const timeout = testPlugin.timeout
 
 const makeExpiry = (t) => {
-  return (new Date((new Date()).getTime() + t * 1000)).toISOString()
+  return (new Date((new Date()).getTime() + t)).toISOString()
 }
 
 describe('Plugin transfers (universal)', function () {
@@ -26,11 +26,11 @@ describe('Plugin transfers (universal)', function () {
     this.pluginB = new Plugin(optsB)
 
     const pA = new Promise(resolve => this.pluginA.once('connect', resolve))
-    yield this.pluginA.connect()
+    yield this.pluginA.connect({ timeout })
     yield pA
 
     const pB = new Promise(resolve => this.pluginB.once('connect', resolve))
-    yield this.pluginB.connect()
+    yield this.pluginB.connect({ timeout })
     yield pB
 
     assert.isTrue(this.pluginA.isConnected())

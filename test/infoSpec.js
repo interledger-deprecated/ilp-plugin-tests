@@ -16,7 +16,7 @@ describe('Plugin info', function () {
     assert.isObject(this.plugin)
 
     const p = new Promise(resolve => this.plugin.once('connect', resolve))
-    yield this.plugin.connect()
+    yield this.plugin.connect({ timeout })
     yield p
     assert.isTrue(this.plugin.isConnected())
   })

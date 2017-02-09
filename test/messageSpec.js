@@ -20,11 +20,11 @@ describe('Plugin messaging', function () {
     this.pluginB = new Plugin(optsB)
 
     const pA = new Promise(resolve => this.pluginA.once('connect', resolve))
-    yield this.pluginA.connect()
+    yield this.pluginA.connect({ timeout })
     yield pA
 
     const pB = new Promise(resolve => this.pluginB.once('connect', resolve))
-    yield this.pluginB.connect()
+    yield this.pluginB.connect({ timeout })
     yield pB
 
     assert.isTrue(this.pluginA.isConnected())
