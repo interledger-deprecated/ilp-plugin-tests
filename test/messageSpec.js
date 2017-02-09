@@ -47,7 +47,9 @@ describe('Plugin messaging', function () {
       this.pluginB.once('incoming_message', (message) => {
         assert.deepEqual(message, {
           ledger: this.prefix,
-          account: transferB.account,
+          account: this.pluginA.getAccount(),
+          from: this.pluginA.getAccount(),
+          to: transferA.account,
           data: {foo: 'bar'}
         })
         done()
