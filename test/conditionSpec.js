@@ -45,8 +45,8 @@ describe('Plugin transfers (universal)', function () {
   })
 
   describe('fulfillCondition', function () {
-    const condition = 'cc:0:3:47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU:0'
-    const fulfillment = 'cf:0:'
+    const condition = 'ni:///sha-256;47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU?fpt=preimage-sha-256&cost=0'
+    const fulfillment = 'oAKAAA'
 
     it('should be a function', function () {
       assert.isFunction(this.pluginA.fulfillCondition)
@@ -191,7 +191,7 @@ describe('Plugin transfers (universal)', function () {
         expiresAt: makeExpiry(timeout)
       }, transferA))
 
-      yield this.pluginB.fulfillCondition(id, 'cf:0:abc')
+      yield this.pluginB.fulfillCondition(id, 'oAKAAA')
         .catch((e) => {
           assert.equal(e.name, 'NotAcceptedError')
         })
@@ -306,8 +306,8 @@ describe('Plugin transfers (universal)', function () {
   })
 
   describe('getFulfillment', () => {
-    const condition = 'cc:0:3:47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU:0'
-    const fulfillment = 'cf:0:'
+    const condition = 'ni:///sha-256;47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU?fpt=preimage-sha-256&cost=0'
+    const fulfillment = 'oAKAAA'
 
     it('should get the fulfillment of a completed transfer', function (done) {
       const id = uuid()
@@ -435,8 +435,8 @@ describe('Plugin transfers (universal)', function () {
   })
 
   describe('rejectIncomingTransfer', () => {
-    const condition = 'cc:0:3:47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU:0'
-    const fulfillment = 'cf:0:'
+    const condition = 'ni:///sha-256;47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU?fpt=preimage-sha-256&cost=0'
+    const fulfillment = 'oAKAAA'
 
     it('should be a function', function () {
       assert.isFunction(this.pluginA.rejectIncomingTransfer)
