@@ -191,7 +191,7 @@ describe('Plugin transfers (universal)', function () {
         expiresAt: makeExpiry(timeout)
       }, transferA))
 
-      yield this.pluginB.fulfillCondition(id, 'HS8e5Ew02XKAglyus2dh2Ohabuqmy3HDM8EXMLz22ok')
+      yield this.pluginB.fulfillCondition(id, 'wrongfulfillmentwrongfulfillmentwrongfulfil')
         .catch((e) => {
           assert.equal(e.name, 'NotAcceptedError')
         })
