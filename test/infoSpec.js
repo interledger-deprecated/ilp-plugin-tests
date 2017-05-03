@@ -33,8 +33,7 @@ describe('Plugin info', function () {
     it('should return a promise to object with correct fields', function () {
       const p = this.plugin.getInfo()
       assert.isObject(p)
-      assert.isNumber(p.precision, 'should contain "precision"')
-      assert.isNumber(p.scale, 'should contain "scale"')
+      assert.isNumber(p.currencyScale, 'should contain "scale"')
       assert.isArray(p.connectors)
       assert.match(p.prefix, /^[a-zA-Z0-9._~-]+\.$/,
         'should match ilp address pattern and end in "."')
